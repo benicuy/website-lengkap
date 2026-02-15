@@ -150,6 +150,13 @@
                     <h3>Top Up Saldo Reseller</h3>
                     <p>Jadi reseller & dapatkan harga spesial</p>
                 </div>
+                <div class="kategori-card" onclick="showEwallet()">
+                    <div class="kategori-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h3>E-Wallet</h3>
+                    <p>Top up DANA, OVO, Gopay</p>
+                </div>
             </div>
         </div>
     </section>
@@ -203,7 +210,7 @@
                         <i class="fas fa-info-circle"></i>
                         <h3>Informasi Saldo</h3>
                         <ul>
-                            <li><i class="fas fa-check"></i> Minimal isi saldo Rp 50.000</li>
+                            <li><i class="fas fa-check"></i> Minimal isi saldo Rp 1.000</li>
                             <li><i class="fas fa-check"></i> Saldo bisa digunakan untuk semua transaksi</li>
                             <li><i class="fas fa-check"></i> Proses lebih cepat tanpa upload bukti</li>
                             <li><i class="fas fa-check"></i> Bonus saldo untuk deposit besar</li>
@@ -316,7 +323,7 @@
                         <div id="produkSection">
                             <div class="form-group">
                                 <label>Pilih Produk / Nominal</label>
-                                <select id="itemSelect" onchange="hitungTotal()"></select>
+                                <select id="itemSelect" onchange="hitungTotal(); tampilkanPreviewAkun();"></select>
                             </div>
                         </div>
                         
@@ -346,7 +353,7 @@
                         
                         <div class="form-group">
                             <label>Metode Pembayaran</label>
-                            <select id="paymentMethod" onchange="toggleQRIS()">
+                            <select id="paymentMethod" onchange="toggleQRIS(); cekSaldo()">
                                 <option value="ewallet">E-Wallet</option>
                                 <option value="va">Virtual Account</option>
                                 <option value="qris">QRIS</option>
@@ -563,6 +570,7 @@
                             <th>Game</th>
                             <th>Deskripsi</th>
                             <th>Harga</th>
+                            <th>Harga Reseller</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -841,6 +849,7 @@
                     <p><strong>Role:</strong> <span id="profileRole"></span></p>
                     <p><strong>Saldo Akun:</strong> <span id="profileSaldoAkun"></span></p>
                     <p><strong>Saldo Reseller:</strong> <span id="profileSaldoReseller"></span></p>
+                    <p><strong>Status Reseller:</strong> <span id="profileIsReseller"></span></p>
                     <p><strong>Member Sejak:</strong> <span id="profileMemberSince"></span></p>
                     <p><strong>Status Notifikasi:</strong> <span id="profileNotifStatus" class="notif-status"></span></p>
                 </div>
@@ -875,8 +884,42 @@
                     </table>
                 </div>
                 
-                <button class="btn-deposit" onclick="showIsiSaldo()">
+                <button class="btn-deposit" onclick="showIsiSaldo(); closeSaldoAkunModal();">
                     <i class="fas fa-plus-circle"></i> Isi Saldo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saldo Reseller Modal -->
+    <div id="saldoResellerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSaldoResellerModal()">&times;</span>
+            <h2><i class="fas fa-coins"></i> Saldo Reseller</h2>
+            <div class="saldo-akun-info">
+                <div class="current-saldo">
+                    <h3>Saldo Reseller Saat Ini</h3>
+                    <p class="saldo-nominal" id="currentSaldoReseller">Rp 0</p>
+                </div>
+                
+                <div class="saldo-history">
+                    <h3>Riwayat Deposit Reseller</h3>
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Nominal</th>
+                                <th>Bonus</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resellerHistoryTable"></tbody>
+                    </table>
+                </div>
+                
+                <button class="btn-deposit" onclick="showReseller(); closeSaldoResellerModal();">
+                    <i class="fas fa-plus-circle"></i> Top Up Saldo Reseller
                 </button>
             </div>
         </div>
@@ -1048,7 +1091,7 @@
                     <textarea id="akunDeskripsi" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Harga</label>
+                    <label>Harga Normal</label>
                     <input type="number" id="akunPrice" required>
                 </div>
                 <div class="form-group">
