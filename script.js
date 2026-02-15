@@ -11,7 +11,7 @@ let users = JSON.parse(localStorage.getItem('users')) || [
         status: 'active',
         isReseller: false,
         total_deposit: 0,
-        komisi: 0,
+        komisi: 50,
         joinDate: new Date().toISOString(),
         fcmToken: null,
         notifSettings: {
