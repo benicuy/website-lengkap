@@ -11,7 +11,7 @@ let users = JSON.parse(localStorage.getItem('users')) || [
         status: 'active',
         isReseller: false,
         total_deposit: 0,
-        komisi: 50,
+        komisi: 0,
         joinDate: new Date().toISOString(),
         fcmToken: null,
         notifSettings: {
@@ -125,7 +125,7 @@ let ewallet = [
 ];
 
 let saldoPackages = JSON.parse(localStorage.getItem('saldoPackages')) || [
-    { id: 1, name: 'Paket Hemat', nominal: 5000, bonus: 5, price: 5000 },
+    { id: 1, name: 'Paket Hemat', nominal: 50000, bonus: 5, price: 50000 },
     { id: 2, name: 'Paket Populer', nominal: 100000, bonus: 7, price: 100000 },
     { id: 3, name: 'Paket Spesial', nominal: 250000, bonus: 10, price: 250000 },
     { id: 4, name: 'Paket Sultan', nominal: 500000, bonus: 15, price: 500000 },
@@ -156,21 +156,32 @@ let notificationPermission = localStorage.getItem('notifPermission') === 'grante
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded');
+    
+    // Load data
     loadProducts();
     loadAkun();
     loadSaldoPackages();
     loadResellerPackages();
     loadEwallet();
+    
+    // Update UI
     updateAuthUI();
     updateTransaksiForm();
     setupEventListeners();
     updateAllBadges();
     updateSaldoBadges();
     
+    // Update admin stats jika user adalah admin
+    if (currentUser && currentUser.role === 'admin') {
+        updateAdminStats();
+    }
+    
     const uploadSection = document.getElementById('uploadBuktiSection');
     if (uploadSection) {
         uploadSection.style.display = 'block';
     }
+    
+    console.log('Current user:', currentUser);
 });
 
 // ==================== EVENT LISTENERS ====================
@@ -266,14 +277,23 @@ function login() {
         const adminPanel = document.getElementById('adminPanel');
         const resellerPanel = document.getElementById('resellerPanel');
         
+        console.log('User role:', user.role);
+        
         if (adminPanel) {
             adminPanel.style.display = user.role === 'admin' ? 'block' : 'none';
+            console.log('Admin panel display:', adminPanel.style.display);
         }
+        
         if (resellerPanel) {
             resellerPanel.style.display = user.isReseller ? 'block' : 'none';
         }
         
         updateSaldoBadges();
+        
+        // Update admin stats jika user adalah admin
+        if (user.role === 'admin') {
+            updateAdminStats();
+        }
         
         // Reset form
         document.getElementById('loginEmail').value = '';
@@ -382,6 +402,10 @@ function updateAuthUI() {
     const navAuth = document.getElementById('navAuth');
     const navUser = document.getElementById('navUser');
     const userName = document.getElementById('userName');
+    const adminPanel = document.getElementById('adminPanel');
+    const resellerPanel = document.getElementById('resellerPanel');
+
+    console.log('Updating auth UI, currentUser:', currentUser);
 
     if (currentUser) {
         if (navAuth) navAuth.style.display = 'none';
@@ -389,9 +413,19 @@ function updateAuthUI() {
             navUser.style.display = 'flex';
             if (userName) userName.textContent = currentUser.name;
         }
+        
+        // Tampilkan panel berdasarkan role
+        if (adminPanel) {
+            adminPanel.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+        }
+        if (resellerPanel) {
+            resellerPanel.style.display = currentUser.isReseller ? 'block' : 'none';
+        }
     } else {
         if (navAuth) navAuth.style.display = 'flex';
         if (navUser) navUser.style.display = 'none';
+        if (adminPanel) adminPanel.style.display = 'none';
+        if (resellerPanel) resellerPanel.style.display = 'none';
     }
 }
 
@@ -708,7 +742,7 @@ function selectResellerPackage(id) {
 function hitungBonusSaldo() {
     const nominal = parseFloat(document.getElementById('customSaldo').value);
     if (nominal < 50000) {
-        showNotification('Minimal deposit Rp 5.000', 'warning');
+        showNotification('Minimal deposit Rp 50.000', 'warning');
         return;
     }
     
@@ -738,7 +772,7 @@ function prosesDepositSaldo() {
     
     const nominal = parseFloat(document.getElementById('customSaldo').value);
     if (nominal < 50000) {
-        showNotification('Minimal deposit Rp 10.000', 'warning');
+        showNotification('Minimal deposit Rp 50.000', 'warning');
         return;
     }
     
@@ -752,9 +786,43 @@ function prosesDepositSaldo() {
     const bonusAmount = nominal * bonus / 100;
     const total = nominal + bonusAmount;
     
+    // Buat transaksi deposit
+    const transactionId = 'DEP-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+    
+    const deposit = {
+        id: depositHistory.length + 1,
+        transactionId: transactionId,
+        userId: currentUser.id,
+        userName: currentUser.name,
+        nominal: nominal,
+        bonus: bonus,
+        bonusAmount: bonusAmount,
+        total: total,
+        status: 'menunggu_konfirmasi',
+        date: new Date().toISOString(),
+        paymentMethod: 'transfer'
+    };
+    
+    depositHistory.push(deposit);
+    localStorage.setItem('depositHistory', JSON.stringify(depositHistory));
+    
     // Arahkan ke form transaksi
     document.getElementById('layananType').value = 'isi_saldo';
     updateForm();
+    
+    // Pilih paket yang sesuai
+    setTimeout(() => {
+        const select = document.getElementById('itemSelect');
+        if (select) {
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].text.includes(formatRupiah(nominal))) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        hitungTotal();
+    }, 100);
     
     document.getElementById('transaksi').scrollIntoView({ behavior: 'smooth' });
     showNotification('Silakan lanjutkan transaksi di form', 'info');
@@ -990,6 +1058,21 @@ function hitungTotal() {
     const totalHarga = document.getElementById('totalHarga');
     if (totalHarga) {
         totalHarga.textContent = 'Rp ' + formatRupiah(total);
+    }
+    
+    // Tampilkan sisa saldo
+    if (currentUser) {
+        const sisaSaldoAkun = document.getElementById('sisaSaldoAkun');
+        const sisaSaldoReseller = document.getElementById('sisaSaldoReseller');
+        
+        if (sisaSaldoAkun) {
+            sisaSaldoAkun.style.display = 'block';
+            document.getElementById('sisaSaldoAkunValue').textContent = `Rp ${formatRupiah(currentUser.saldo_akun || 0)}`;
+        }
+        if (sisaSaldoReseller) {
+            sisaSaldoReseller.style.display = 'block';
+            document.getElementById('sisaSaldoResellerValue').textContent = `Rp ${formatRupiah(currentUser.saldo_reseller || 0)}`;
+        }
     }
 }
 
@@ -1512,6 +1595,30 @@ function showSaldoAkun() {
         currentSaldo.textContent = `Rp ${formatRupiah(currentUser.saldo_akun || 0)}`;
     }
     
+    // Load riwayat deposit
+    const userDeposits = depositHistory.filter(d => d.userId === currentUser.id);
+    const tbody = document.getElementById('saldoHistoryTable');
+    
+    if (tbody) {
+        tbody.innerHTML = '';
+        
+        if (userDeposits.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada deposit</td></tr>';
+        } else {
+            userDeposits.forEach(d => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatDate(d.date)}</td>
+                    <td>Rp ${formatRupiah(d.nominal)}</td>
+                    <td>${d.bonus}% (Rp ${formatRupiah(d.bonusAmount)})</td>
+                    <td>Rp ${formatRupiah(d.total)}</td>
+                    <td><span class="status-${d.status}">${d.status}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    }
+    
     const modal = document.getElementById('saldoAkunModal');
     if (modal) modal.style.display = 'block';
 }
@@ -1755,8 +1862,12 @@ function showAdminPanel() {
     }
     
     loadAdminData();
+    updateAdminStats();
     const modal = document.getElementById('adminModal');
-    if (modal) modal.style.display = 'block';
+    if (modal) {
+        modal.style.display = 'block';
+        console.log('Admin panel opened');
+    }
 }
 
 function closeAdminModal() {
@@ -1764,13 +1875,25 @@ function closeAdminModal() {
     if (modal) modal.style.display = 'none';
 }
 
+function updateAdminStats() {
+    const totalUsers = document.getElementById('totalUsers');
+    const totalTransactions = document.getElementById('totalTransactions');
+    const pendingTransactions = document.getElementById('pendingTransactions');
+    const totalResellers = document.getElementById('totalResellers');
+    
+    if (totalUsers) totalUsers.textContent = users.length;
+    if (totalTransactions) totalTransactions.textContent = transactions.length;
+    if (pendingTransactions) pendingTransactions.textContent = transactions.filter(t => t.status === 'menunggu_konfirmasi').length;
+    if (totalResellers) totalResellers.textContent = users.filter(u => u.isReseller).length;
+}
+
 function switchAdminTab(tab) {
     // Update tab buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    const activeBtn = document.querySelector(`.tab-btn[onclick="switchAdminTab('${tab}')"]`);
+    const activeBtn = document.querySelector(`.admin-tabs .tab-btn[onclick="switchAdminTab('${tab}')"]`);
     if (activeBtn) activeBtn.classList.add('active');
     
     // Update tab content
@@ -2453,11 +2576,6 @@ function viewBuktiDetail(transactionId) {
     const allImages = JSON.parse(localStorage.getItem('bukti_pembayaran')) || {};
     const imageData = transaction.buktiInfo ? allImages[transaction.buktiInfo.buktiId] : null;
     
-    if (!imageData && transaction.status === 'menunggu_konfirmasi') {
-        showNotification('Gambar bukti tidak ditemukan!', 'error');
-        return;
-    }
-    
     // Tampilkan gambar jika ada
     const detailImage = document.getElementById('detailBuktiImage');
     if (detailImage) {
@@ -2482,17 +2600,24 @@ function viewBuktiDetail(transactionId) {
     }
     
     // Tampilkan/sembunyikan tombol aksi
+    const btnKonfirmasi = document.getElementById('btnKonfirmasi');
+    const btnTolak = document.getElementById('btnTolak');
+    const catatanSection = document.getElementById('catatanSection');
+    
     if (transaction.status === 'menunggu_konfirmasi') {
-        document.getElementById('catatanSection').style.display = 'none';
-        document.getElementById('btnKonfirmasi').style.display = 'flex';
-        document.getElementById('btnTolak').style.display = 'flex';
-        
-        document.getElementById('btnKonfirmasi').onclick = function() { konfirmasiTransaksi(transactionId); };
-        document.getElementById('btnTolak').onclick = function() { tolakTransaksi(transactionId); };
+        if (catatanSection) catatanSection.style.display = 'none';
+        if (btnKonfirmasi) {
+            btnKonfirmasi.style.display = 'flex';
+            btnKonfirmasi.onclick = function() { konfirmasiTransaksi(transactionId); };
+        }
+        if (btnTolak) {
+            btnTolak.style.display = 'flex';
+            btnTolak.onclick = function() { tolakTransaksi(transactionId); };
+        }
     } else {
-        document.getElementById('catatanSection').style.display = 'none';
-        document.getElementById('btnKonfirmasi').style.display = 'none';
-        document.getElementById('btnTolak').style.display = 'none';
+        if (catatanSection) catatanSection.style.display = 'none';
+        if (btnKonfirmasi) btnKonfirmasi.style.display = 'none';
+        if (btnTolak) btnTolak.style.display = 'none';
     }
     
     const modal = document.getElementById('previewBuktiModal');
@@ -2666,18 +2791,7 @@ function sendBroadcast() {
         targetUsers = users.filter(u => u.role === 'admin');
     }
     
-    // Filter yang punya FCM token
-    const usersWithToken = targetUsers.filter(u => u.fcmToken);
-    
-    if (usersWithToken.length === 0) {
-        showNotification('Tidak ada user dengan notifikasi aktif', 'warning');
-        return;
-    }
-    
-    showNotification(`Mengirim ke ${usersWithToken.length} user...`, 'info');
-    
-    // Simulasi pengiriman (dalam implementasi nyata, kirim ke FCM)
-    let success = usersWithToken.length;
+    showNotification(`Broadcast dikirim ke ${targetUsers.length} user`, 'success');
     
     // Simpan ke history
     const broadcast = {
@@ -2686,7 +2800,7 @@ function sendBroadcast() {
         message: message,
         target: target,
         link: link,
-        sentCount: success,
+        sentCount: targetUsers.length,
         failedCount: 0,
         date: new Date().toISOString()
     };
@@ -2694,15 +2808,12 @@ function sendBroadcast() {
     broadcastHistory.push(broadcast);
     localStorage.setItem('broadcast_history', JSON.stringify(broadcastHistory));
     
-    // Kirim notifikasi ke semua user target (simulasi)
+    // Kirim notifikasi ke semua user target
     targetUsers.forEach(user => {
-        addInAppNotification({
-            notification: { title, body: message },
-            data: { type: 'broadcast', url: link }
-        });
+        sendUserNotification(user.id, `${title}\n\n${message}`, 'info');
     });
     
-    showNotification(`Broadcast selesai! ${success} notifikasi terkirim`, 'success');
+    showNotification(`Broadcast selesai! ${targetUsers.length} notifikasi terkirim`, 'success');
     
     // Reset form
     document.getElementById('broadcastTitle').value = '';
@@ -2824,11 +2935,15 @@ function showResellerPanel() {
     }
     
     // Load data reseller
-    document.getElementById('resellerSaldo').textContent = `Rp ${formatRupiah(currentUser.saldo_reseller || 0)}`;
+    const resellerSaldo = document.getElementById('resellerSaldo');
+    const resellerTotalTrans = document.getElementById('resellerTotalTrans');
+    const resellerKomisi = document.getElementById('resellerKomisi');
     
-    const totalTrans = transactions.filter(t => t.userId === currentUser.id && t.type === 'reseller').length;
-    document.getElementById('resellerTotalTrans').textContent = totalTrans;
-    document.getElementById('resellerKomisi').textContent = `${currentUser.komisi || 0}%`;
+    if (resellerSaldo) resellerSaldo.textContent = `Rp ${formatRupiah(currentUser.saldo_reseller || 0)}`;
+    
+    const totalTrans = transactions.filter(t => t.userId === currentUser.id && (t.type === 'reseller' || t.paymentMethod === 'saldo_reseller')).length;
+    if (resellerTotalTrans) resellerTotalTrans.textContent = totalTrans;
+    if (resellerKomisi) resellerKomisi.textContent = `${currentUser.komisi || 0}%`;
     
     // Load produk untuk reseller
     loadResellerProducts();
