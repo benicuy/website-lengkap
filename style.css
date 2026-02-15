@@ -1,1212 +1,373 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    color: #333;
-    overflow-x: hidden;
-}
-
-/* Navbar Styles */
-.navbar {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-}
-
-.nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #667eea;
-}
-
-.nav-logo i {
-    font-size: 2rem;
-}
-
-.nav-menu ul {
-    display: flex;
-    list-style: none;
-    gap: 2rem;
-}
-
-.nav-menu a {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.nav-menu a:hover,
-.nav-menu a.active {
-    color: #667eea;
-}
-
-.nav-auth {
-    display: flex;
-    gap: 1rem;
-}
-
-.btn-login {
-    padding: 0.5rem 1.5rem;
-    background: transparent;
-    border: 2px solid #667eea;
-    color: #667eea;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.btn-login:hover {
-    background: #667eea;
-    color: white;
-}
-
-.btn-register {
-    padding: 0.5rem 1.5rem;
-    background: #667eea;
-    border: 2px solid #667eea;
-    color: white;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.btn-register:hover {
-    background: #764ba2;
-    border-color: #764ba2;
-}
-
-.nav-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-}
-
-.user-dropdown {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background: white;
-    min-width: 200px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.dropdown-content a {
-    color: #333;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: background 0.3s;
-    position: relative;
-}
-
-.dropdown-content a:hover {
-    background: #f5f5f5;
-}
-
-.user-dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #dc3545;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 10px;
-    min-width: 18px;
-    text-align: center;
-}
-
-#adminPanel {
-    position: relative;
-}
-
-/* Hero Section */
-.hero {
-    padding: 100px 0 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.hero-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-}
-
-.hero-content h1 {
-    font-size: 3rem;
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
-}
-
-.hero-content h1 span {
-    color: #ffd700;
-}
-
-.hero-content p {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    margin-bottom: 2rem;
-}
-
-.hero-stats {
-    display: flex;
-    gap: 3rem;
-}
-
-.stat-item h3 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.hero-image img {
-    width: 100%;
-    border-radius: 10px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
-/* Kategori Section */
-.kategori {
-    padding: 4rem 0;
-    background: white;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.kategori h2 {
-    text-align: center;
-    margin-bottom: 3rem;
-    font-size: 2.5rem;
-    color: #333;
-}
-
-.kategori-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-}
-
-.kategori-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: transform 0.3s;
-}
-
-.kategori-card:hover {
-    transform: translateY(-5px);
-}
-
-.kategori-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-}
-
-.kategori-icon i {
-    font-size: 2rem;
-    color: white;
-}
-
-.kategori-card h3 {
-    margin-bottom: 0.5rem;
-}
-
-/* Products Section */
-.products {
-    padding: 4rem 0;
-    background: #f5f5f5;
-}
-
-.products h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    font-size: 2.5rem;
-    color: #333;
-}
-
-.filter-bar {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.filter-bar input,
-.filter-bar select {
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-.filter-bar input {
-    flex: 1;
-}
-
-.product-grid,
-.payment-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-}
-
-.product-card {
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s;
-}
-
-.product-card:hover {
-    transform: translateY(-5px);
-}
-
-.product-image {
-    height: 150px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.product-image i {
-    font-size: 4rem;
-    color: white;
-}
-
-.product-info {
-    padding: 1.5rem;
-}
-
-.product-info h3 {
-    margin-bottom: 0.5rem;
-}
-
-.product-info p {
-    color: #666;
-    margin-bottom: 1rem;
-}
-
-.product-price {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #667eea;
-    margin-bottom: 1rem;
-}
-
-.btn-beli-product {
-    width: 100%;
-    padding: 0.8rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: opacity 0.3s;
-}
-
-.btn-beli-product:hover {
-    opacity: 0.9;
-}
-
-/* Payment Grid */
-.payment-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: transform 0.3s;
-}
-
-.payment-card:hover {
-    transform: translateY(-5px);
-}
-
-.payment-card i {
-    font-size: 3rem;
-    color: #667eea;
-    margin-bottom: 1rem;
-}
-
-.payment-card h3 {
-    margin-bottom: 0.5rem;
-}
-
-.payment-card p {
-    color: #666;
-    margin-bottom: 1rem;
-}
-
-.payment-desc {
-    font-size: 0.9rem;
-    color: #999;
-}
-
-/* Transaksi Section */
-.transaksi {
-    padding: 4rem 0;
-    background: white;
-}
-
-.transaksi h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    font-size: 2.5rem;
-    color: #333;
-}
-
-.transaksi-container {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-}
-
-.transaksi-form {
-    background: #f5f5f5;
-    padding: 2rem;
-    border-radius: 10px;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-.form-group textarea {
-    height: 100px;
-    resize: vertical;
-}
-
-.total-harga {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    border-top: 2px dashed #ddd;
-    margin-bottom: 1rem;
-}
-
-.btn-beli {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.3s;
-}
-
-.btn-beli:hover {
-    opacity: 0.9;
-}
-
-.transaksi-info {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 2rem;
-    border-radius: 10px;
-    color: white;
-}
-
-.transaksi-info h3 {
-    margin-bottom: 1.5rem;
-}
-
-.transaksi-info ul {
-    list-style: none;
-}
-
-.transaksi-info li {
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.transaksi-info i {
-    color: #ffd700;
-}
-
-/* QRIS Styles */
-.qris-container {
+/* Upload Bukti Section */
+.upload-bukti-section {
     background: #f8f9fa;
     border-radius: 10px;
     padding: 1.5rem;
-    margin: 1rem 0;
-    text-align: center;
+    margin: 1.5rem 0;
+    border: 2px dashed #667eea;
 }
 
-.qris-container h3 {
+.upload-bukti-section h3 {
     color: #333;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-bukti-section h3 i {
+    color: #667eea;
+}
+
+.upload-info {
+    color: #666;
+    font-size: 0.9rem;
     margin-bottom: 1rem;
 }
 
-.qris-image {
-    margin-bottom: 1.5rem;
-}
-
-.qris-image img {
-    width: 200px;
-    height: 200px;
-    border: 3px solid #667eea;
+.upload-area {
+    border: 2px dashed #ccc;
     border-radius: 10px;
-    padding: 10px;
-    background: white;
-    transition: transform 0.3s;
+    padding: 2rem;
+    text-align: center;
     cursor: pointer;
+    transition: all 0.3s;
+    background: white;
 }
 
-.qris-image img:hover {
-    transform: scale(1.05);
+.upload-area:hover {
+    border-color: #667eea;
+    background: #f0f3ff;
 }
 
-.qris-image p {
-    margin-top: 0.5rem;
-    color: #666;
+.upload-area i {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 1rem;
 }
 
-.btn-copy {
-    background: #28a745;
+.upload-area p {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.upload-hint {
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.preview-image {
+    position: relative;
+    margin-top: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #ddd;
+}
+
+.preview-image img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+}
+
+.btn-remove {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #dc3545;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 5px;
     cursor: pointer;
     font-size: 0.9rem;
+    transition: background 0.3s;
+}
+
+.btn-remove:hover {
+    background: #c82333;
+}
+
+.file-info {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #e9ecef;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.upload-note {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #856404;
+}
+
+.upload-note i {
+    font-size: 1.2rem;
+}
+
+.upload-status {
+    background: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-status i {
+    font-size: 1.2rem;
+}
+
+/* Filter Status */
+.filter-status {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-btn:hover {
+    background: #e9ecef;
+}
+
+.filter-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+/* Search Box */
+.search-box {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Bukti Thumbnail di Tabel */
+.bukti-thumbnail {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    cursor: pointer;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    transition: transform 0.3s;
+}
+
+.bukti-thumbnail:hover {
+    transform: scale(1.1);
+    border-color: #667eea;
+}
+
+.no-bukti {
+    color: #999;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* Modal Preview Bukti */
+.bukti-detail-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.bukti-image-section h3,
+.bukti-info-section h3 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.bukti-image-frame {
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 1rem;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+}
+
+.bukti-image-frame img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.image-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-zoom,
+.btn-download {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 5px;
     transition: background 0.3s;
 }
 
-.btn-copy:hover {
-    background: #218838;
-}
-
-/* Upload Bukti Styles */
-.upload-bukti {
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px dashed #ddd;
-}
-
-.upload-bukti h4 {
-    color: #333;
-    margin-bottom: 1rem;
-}
-
-.file-upload {
-    position: relative;
-    margin-bottom: 1rem;
-}
-
-.file-upload input[type="file"] {
-    display: none;
-}
-
-.btn-upload {
-    display: inline-block;
-    padding: 0.8rem 1.5rem;
-    background: #667eea;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.3s;
-}
-
-.btn-upload:hover {
-    background: #764ba2;
-}
-
-#fileName {
-    margin-left: 1rem;
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.preview-bukti {
-    margin-top: 1rem;
-    text-align: center;
-}
-
-.preview-bukti img {
-    max-width: 200px;
-    max-height: 200px;
-    border-radius: 5px;
-    border: 2px solid #ddd;
-}
-
-/* Kontak Admin Styles */
-.kontak-admin {
-    margin-top: 2rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-}
-
-.kontak-admin h4 {
-    color: white;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.admin-contacts {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.contact-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 0.8rem;
-    border-radius: 5px;
-    color: white;
-    text-decoration: none;
-    font-weight: 500;
-    transition: opacity 0.3s;
-}
-
-.contact-btn:hover {
-    opacity: 0.9;
-}
-
-.contact-btn.whatsapp {
-    background: #25D366;
-}
-
-.contact-btn.telegram {
-    background: #0088cc;
-}
-
-.contact-btn.email {
-    background: #EA4335;
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    overflow-y: auto;
-}
-
-.modal-content {
-    background: white;
-    margin: 5% auto;
-    padding: 2rem;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
-    animation: modalSlideIn 0.3s;
-}
-
-.modal-content.large {
-    max-width: 900px;
-}
-
-.modal-content.small {
-    max-width: 400px;
-}
-
-@keyframes modalSlideIn {
-    from {
-        transform: translateY(-50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.close {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #999;
-    transition: color 0.3s;
-}
-
-.close:hover {
-    color: #333;
-}
-
-.modal h2 {
-    margin-bottom: 2rem;
-    color: #333;
-}
-
-.modal-footer {
-    text-align: center;
-    margin-top: 1rem;
-}
-
-.modal-footer a {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.modal-footer a:hover {
-    text-decoration: underline;
-}
-
-.btn-login-submit,
-.btn-register-submit {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.3s;
-}
-
-.btn-login-submit:hover,
-.btn-register-submit:hover {
-    opacity: 0.9;
-}
-
-/* Admin Panel Styles */
-.admin-tabs {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 1rem;
-    flex-wrap: wrap;
-}
-
-.tab-btn {
-    padding: 0.5rem 1.5rem;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
-    color: #666;
-    transition: all 0.3s;
-    position: relative;
-}
-
-.tab-btn.active {
-    color: #667eea;
-    border-bottom: 2px solid #667eea;
-}
-
-.admin-tab {
-    display: none;
-}
-
-.admin-tab.active {
-    display: block;
-}
-
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.btn-add {
-    padding: 0.5rem 1rem;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background 0.3s;
-}
-
-.btn-add:hover {
-    background: #218838;
-}
-
-.admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    overflow-x: auto;
-    display: block;
-}
-
-.admin-table th,
-.admin-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-    min-width: 120px;
-}
-
-.admin-table th {
-    background: #f5f5f5;
-    font-weight: 600;
-}
-
-.admin-table tr:hover {
-    background: #f9f9f9;
-}
-
-.btn-edit {
-    padding: 0.3rem 0.8rem;
-    background: #ffc107;
-    color: #333;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    margin-right: 0.3rem;
-    transition: background 0.3s;
-}
-
-.btn-edit:hover {
-    background: #e0a800;
-}
-
-.btn-delete {
-    padding: 0.3rem 0.8rem;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.btn-delete:hover {
-    background: #c82333;
-}
-
-.btn-konfirmasi {
-    padding: 0.3rem 0.8rem;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    margin-right: 0.3rem;
-    transition: background 0.3s;
-}
-
-.btn-konfirmasi:hover {
-    background: #218838;
-}
-
-.btn-tolak {
-    padding: 0.3rem 0.8rem;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.btn-tolak:hover {
-    background: #c82333;
-}
-
-.btn-save {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.3s;
-}
-
-.btn-save:hover {
-    opacity: 0.9;
-}
-
-/* History Table */
-.history-table {
-    width: 100%;
-    border-collapse: collapse;
-    overflow-x: auto;
-    display: block;
-}
-
-.history-table th,
-.history-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-    min-width: 100px;
-}
-
-.history-table th {
-    background: #f5f5f5;
-    font-weight: 600;
-}
-
-/* Status Colors */
-.status-success {
-    color: #28a745;
-    font-weight: 600;
-}
-
-.status-pending {
-    color: #ffc107;
-    font-weight: 600;
-}
-
-.status-failed {
-    color: #dc3545;
-    font-weight: 600;
-}
-
-.status-menunggu_konfirmasi {
-    color: #ffc107;
-    font-weight: 600;
-}
-
-.status-tersedia {
-    color: #28a745;
-    font-weight: 600;
-}
-
-.status-terjual {
-    color: #dc3545;
-    font-weight: 600;
-}
-
-.status-active {
-    color: #28a745;
-    font-weight: 600;
-}
-
-.status-inactive {
-    color: #dc3545;
-    font-weight: 600;
-}
-
-/* QRIS Zoom Modal */
-.qris-zoom {
-    max-width: 500px;
-    text-align: center;
-}
-
-.qris-zoom img {
-    width: 100%;
-    max-width: 400px;
-    margin: 1rem auto;
-    border: 3px solid #667eea;
-    border-radius: 10px;
-    display: block;
-}
-
-.qris-instruction {
-    color: #666;
-    margin-bottom: 1rem;
-}
-
-.btn-copy-qris {
-    background: #667eea;
-    color: white;
-    border: none;
-    padding: 0.8rem 2rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 1rem;
-    transition: background 0.3s;
-}
-
-.btn-copy-qris:hover {
-    background: #764ba2;
-}
-
-/* Notifications List */
-.notifications-list {
-    max-height: 500px;
-    overflow-y: auto;
-}
-
-.notification-item {
-    background: #f9f9f9;
-    border-left: 4px solid #667eea;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 5px;
-    position: relative;
-}
-
-.notification-item.unread {
-    background: #e8f4fd;
-    border-left-color: #ffc107;
-}
-
-.notification-item .notification-title {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.notification-item .notification-message {
-    color: #666;
-    margin-bottom: 0.5rem;
-}
-
-.notification-item .notification-date {
-    font-size: 0.8rem;
-    color: #999;
-}
-
-.notification-item .notification-actions {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-}
-
-/* Bukti Preview */
-.bukti-preview-image {
-    max-width: 100%;
-    max-height: 300px;
-    margin: 1rem 0;
-    border: 2px solid #ddd;
-    border-radius: 5px;
-}
-
-.bukti-info {
-    background: #f5f5f5;
-    padding: 1rem;
-    border-radius: 5px;
-    margin: 1rem 0;
-}
-
-.bukti-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-/* Notifications */
-.notification-toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 1rem 2rem;
-    background: white;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    z-index: 3000;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    animation: slideIn 0.3s;
-}
-
-.notification-toast.success {
-    background: #28a745;
-    color: white;
-}
-
-.notification-toast.error {
-    background: #dc3545;
-    color: white;
-}
-
-.notification-toast.warning {
-    background: #ffc107;
-    color: #333;
-}
-
-.notification-toast.info {
+.btn-zoom {
     background: #17a2b8;
     color: white;
 }
 
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+.btn-zoom:hover {
+    background: #138496;
 }
 
-@keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
+.btn-download {
+    background: #28a745;
+    color: white;
 }
 
-/* Responsive Design */
+.btn-download:hover {
+    background: #218838;
+}
+
+.detail-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+}
+
+.detail-info p {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.detail-info i {
+    width: 20px;
+    color: #667eea;
+}
+
+.konfirmasi-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.konfirmasi-actions button {
+    flex: 1;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-weight: 500;
+    transition: opacity 0.3s;
+}
+
+.konfirmasi-actions button:hover {
+    opacity: 0.9;
+}
+
+.catatan-input {
+    margin-top: 1rem;
+}
+
+.catatan-input label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #dc3545;
+}
+
+.catatan-input textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #dc3545;
+    border-radius: 5px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+/* Zoom Modal */
+.zoom-modal {
+    max-width: 800px;
+    text-align: center;
+}
+
+.zoom-modal img {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+}
+
+/* Status Indicators */
+.status-menunggu_konfirmasi {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .nav-container {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .nav-menu ul {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .hero-container {
+    .bukti-detail-container {
         grid-template-columns: 1fr;
     }
-
-    .hero-content h1 {
-        font-size: 2rem;
-    }
-
-    .hero-stats {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .transaksi-container {
-        grid-template-columns: 1fr;
-    }
-
-    .kategori-grid,
-    .product-grid,
-    .payment-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .filter-bar {
+    
+    .filter-status {
         flex-direction: column;
     }
-
-    .admin-tabs {
-        flex-direction: column;
+    
+    .filter-btn {
+        width: 100%;
     }
-
-    .admin-table {
-        font-size: 0.9rem;
-    }
-
-    .admin-table th,
-    .admin-table td {
-        padding: 0.5rem;
-        min-width: 80px;
-    }
-
-    .modal-content {
-        margin: 10% auto;
-        width: 95%;
-        padding: 1rem;
-    }
-
-    .qris-image img {
-        width: 150px;
-        height: 150px;
-    }
-
-    .admin-contacts {
+    
+    .konfirmasi-actions {
         flex-direction: column;
     }
 }
