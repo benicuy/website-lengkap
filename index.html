@@ -36,6 +36,9 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
+                <img src="https://cdn.phototourl.com/uploads/2026-02-15-5f873800-26a4-43be-a12c-3100fc8daf52.png" 
+                     alt="GameVault Logo" 
+                     style="height: 45px; width: auto;">
                 <span class="logo-text">GameVault</span>
             </div>
             
@@ -210,7 +213,7 @@
                         <i class="fas fa-info-circle"></i>
                         <h3>Informasi Saldo</h3>
                         <ul>
-                            <li><i class="fas fa-check"></i> Minimal isi saldo Rp 1.000</li>
+                            <li><i class="fas fa-check"></i> Minimal isi saldo Rp 50.000</li>
                             <li><i class="fas fa-check"></i> Saldo bisa digunakan untuk semua transaksi</li>
                             <li><i class="fas fa-check"></i> Proses lebih cepat tanpa upload bukti</li>
                             <li><i class="fas fa-check"></i> Bonus saldo untuk deposit besar</li>
@@ -257,7 +260,7 @@
     <section id="reseller" class="products">
         <div class="container">
             <h2>Top Up Saldo Reseller</h2>
-            <p class="section-desc">Dapatkan harga khusus untuk reseller. Minimal deposit Rp 1.000</p>
+            <p class="section-desc">Dapatkan harga khusus untuk reseller. Minimal deposit Rp 100.000</p>
             
             <div class="reseller-container">
                 <div class="reseller-info">
@@ -521,7 +524,39 @@
     <div id="adminModal" class="modal admin-modal">
         <div class="modal-content large">
             <span class="close" onclick="closeAdminModal()">&times;</span>
-            <h2>Panel Admin</h2>
+            <h2><i class="fas fa-cog"></i> Panel Admin</h2>
+            
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div>
+                        <h3>Total Users</h3>
+                        <p id="totalUsers">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-shopping-cart"></i>
+                    <div>
+                        <h3>Total Transaksi</h3>
+                        <p id="totalTransactions">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <h3>Menunggu Konfirmasi</h3>
+                        <p id="pendingTransactions">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-store"></i>
+                    <div>
+                        <h3>Total Reseller</h3>
+                        <p id="totalResellers">0</p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="admin-tabs">
                 <button class="tab-btn active" onclick="switchAdminTab('products')">Produk Top Up</button>
                 <button class="tab-btn" onclick="switchAdminTab('akun')">Akun Game</button>
@@ -537,142 +572,159 @@
             <div id="adminProducts" class="admin-tab active">
                 <div class="admin-header">
                     <h3>Daftar Produk Top Up</h3>
-                    <button class="btn-add" onclick="showAddProductForm()">Tambah Produk</button>
+                    <button class="btn-add" onclick="showAddProductForm()"><i class="fas fa-plus"></i> Tambah Produk</button>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Gambar</th>
-                            <th>Nama Game</th>
-                            <th>Item</th>
-                            <th>Harga</th>
-                            <th>Harga Reseller</th>
-                            <th>Kategori</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productsTableBody"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Gambar</th>
+                                <th>Nama Game</th>
+                                <th>Item</th>
+                                <th>Harga Normal</th>
+                                <th>Harga Reseller</th>
+                                <th>Kategori</th>
+                                <th>Stok</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Akun Tab -->
             <div id="adminAkun" class="admin-tab">
                 <div class="admin-header">
                     <h3>Daftar Akun Game</h3>
-                    <button class="btn-add" onclick="showAddAkunForm()">Tambah Akun</button>
+                    <button class="btn-add" onclick="showAddAkunForm()"><i class="fas fa-plus"></i> Tambah Akun</button>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Gambar</th>
-                            <th>Game</th>
-                            <th>Deskripsi</th>
-                            <th>Harga</th>
-                            <th>Harga Reseller</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="akunTableBody"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Gambar</th>
+                                <th>Game</th>
+                                <th>Deskripsi</th>
+                                <th>Harga Normal</th>
+                                <th>Harga Reseller</th>
+                                <th>Status</th>
+                                <th>Terjual</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="akunTableBody"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Saldo Deposit Tab -->
             <div id="adminSaldo" class="admin-tab">
                 <div class="admin-header">
                     <h3>Daftar Paket Deposit Saldo</h3>
-                    <button class="btn-add" onclick="showAddSaldoPackageForm()">Tambah Paket</button>
+                    <button class="btn-add" onclick="showAddSaldoPackageForm()"><i class="fas fa-plus"></i> Tambah Paket</button>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nama Paket</th>
-                            <th>Nominal</th>
-                            <th>Bonus</th>
-                            <th>Harga</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="saldoPackagesTableBody"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama Paket</th>
+                                <th>Nominal</th>
+                                <th>Bonus</th>
+                                <th>Harga</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="saldoPackagesTableBody"></tbody>
+                    </table>
+                </div>
                 
                 <h3 style="margin-top: 30px;">Riwayat Deposit Saldo</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>User</th>
-                            <th>Nominal</th>
-                            <th>Bonus</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Tanggal</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="depositHistoryTable"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID Transaksi</th>
+                                <th>User</th>
+                                <th>Nominal</th>
+                                <th>Bonus</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Tanggal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="depositHistoryTable"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Reseller Tab -->
             <div id="adminReseller" class="admin-tab">
                 <div class="admin-header">
                     <h3>Paket Deposit Reseller</h3>
-                    <button class="btn-add" onclick="showAddResellerPackageForm()">Tambah Paket</button>
+                    <button class="btn-add" onclick="showAddResellerPackageForm()"><i class="fas fa-plus"></i> Tambah Paket</button>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nama Paket</th>
-                            <th>Nominal</th>
-                            <th>Bonus</th>
-                            <th>Harga Jual</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resellerPackagesTableBody"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama Paket</th>
+                                <th>Nominal</th>
+                                <th>Bonus</th>
+                                <th>Harga Jual</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resellerPackagesTableBody"></tbody>
+                    </table>
+                </div>
                 
                 <h3 style="margin-top: 30px;">Daftar Reseller</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nama</th>
-                            <th>Email</th>
-                            <th>Saldo Reseller</th>
-                            <th>Total Deposit</th>
-                            <th>Komisi</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resellerListTableBody"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>Saldo Reseller</th>
+                                <th>Total Deposit</th>
+                                <th>Komisi</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resellerListTableBody"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Users Tab -->
             <div id="adminUsers" class="admin-tab">
                 <h3>Daftar Users</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nama</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Saldo Akun</th>
-                            <th>Saldo Reseller</th>
-                            <th>Status</th>
-                            <th>FCM Token</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Saldo Akun</th>
+                                <th>Saldo Reseller</th>
+                                <th>Reseller</th>
+                                <th>Status</th>
+                                <th>FCM Token</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Transactions Tab -->
@@ -691,22 +743,24 @@
                     <input type="text" id="searchTransaction" placeholder="Cari transaksi..." onkeyup="searchTransactions()">
                 </div>
                 
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID Transaksi</th>
-                            <th>User</th>
-                            <th>Item</th>
-                            <th>Total</th>
-                            <th>Metode</th>
-                            <th>Bukti</th>
-                            <th>Status</th>
-                            <th>Tanggal</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsTableBody"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID Transaksi</th>
+                                <th>User</th>
+                                <th>Item</th>
+                                <th>Total</th>
+                                <th>Metode</th>
+                                <th>Bukti</th>
+                                <th>Status</th>
+                                <th>Tanggal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTableBody"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Notifications Tab -->
@@ -745,18 +799,20 @@
                 </div>
                 
                 <h3 style="margin-top: 30px;">Riwayat Broadcast</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Waktu</th>
-                            <th>Judul</th>
-                            <th>Pesan</th>
-                            <th>Target</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="broadcastHistory"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Waktu</th>
+                                <th>Judul</th>
+                                <th>Pesan</th>
+                                <th>Target</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="broadcastHistory"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -812,18 +868,20 @@
             
             <div id="resellerHistoryTab" class="reseller-tab">
                 <h3>Riwayat Pembelian</h3>
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tanggal</th>
-                            <th>Produk</th>
-                            <th>Harga</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resellerHistoryTable"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tanggal</th>
+                                <th>Produk</th>
+                                <th>Harga</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resellerHistoryTable"></tbody>
+                    </table>
+                </div>
             </div>
             
             <div id="resellerTopupTab" class="reseller-tab">
@@ -838,7 +896,7 @@
     <div id="profileModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeProfileModal()">&times;</span>
-            <h2>Profile User</h2>
+            <h2><i class="fas fa-user-circle"></i> Profile User</h2>
             <div class="profile-info">
                 <div class="profile-avatar">
                     <i class="fas fa-user-circle"></i>
@@ -870,18 +928,20 @@
                 
                 <div class="saldo-history">
                     <h3>Riwayat Deposit</h3>
-                    <table class="history-table">
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Nominal</th>
-                                <th>Bonus</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="saldoHistoryTable"></tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Nominal</th>
+                                    <th>Bonus</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="saldoHistoryTable"></tbody>
+                        </table>
+                    </div>
                 </div>
                 
                 <button class="btn-deposit" onclick="showIsiSaldo(); closeSaldoAkunModal();">
@@ -904,18 +964,20 @@
                 
                 <div class="saldo-history">
                     <h3>Riwayat Deposit Reseller</h3>
-                    <table class="history-table">
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Nominal</th>
-                                <th>Bonus</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resellerHistoryTable"></tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Nominal</th>
+                                    <th>Bonus</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resellerHistoryTable"></tbody>
+                        </table>
+                    </div>
                 </div>
                 
                 <button class="btn-deposit" onclick="showReseller(); closeSaldoResellerModal();">
@@ -938,21 +1000,23 @@
     <div id="historyModal" class="modal">
         <div class="modal-content large">
             <span class="close" onclick="closeHistoryModal()">&times;</span>
-            <h2>Riwayat Transaksi</h2>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Tanggal</th>
-                        <th>Item</th>
-                        <th>Jumlah</th>
-                        <th>Total</th>
-                        <th>Metode</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="historyTableBody"></tbody>
-            </table>
+            <h2><i class="fas fa-history"></i> Riwayat Transaksi</h2>
+            <div class="table-responsive">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tanggal</th>
+                            <th>Item</th>
+                            <th>Jumlah</th>
+                            <th>Total</th>
+                            <th>Metode</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -960,7 +1024,7 @@
     <div id="notificationsModal" class="modal">
         <div class="modal-content large">
             <span class="close" onclick="closeNotificationsModal()">&times;</span>
-            <h2>Notifikasi Saya</h2>
+            <h2><i class="fas fa-bell"></i> Notifikasi Saya</h2>
             <div class="notifications-list" id="userNotificationsList"></div>
         </div>
     </div>
@@ -1039,7 +1103,7 @@
     <div id="addProductModal" class="modal small">
         <div class="modal-content">
             <span class="close" onclick="closeAddProductModal()">&times;</span>
-            <h2>Tambah Produk Top Up</h2>
+            <h2><i class="fas fa-plus-circle"></i> Tambah Produk Top Up</h2>
             <form id="addProductForm" onsubmit="event.preventDefault(); saveProduct()">
                 <div class="form-group">
                     <label>Nama Game</label>
@@ -1071,6 +1135,10 @@
                     <label>URL Gambar</label>
                     <input type="url" id="productImage" placeholder="https://...">
                 </div>
+                <div class="form-group">
+                    <label>Stok</label>
+                    <input type="number" id="productStock" value="999">
+                </div>
                 <button type="submit" class="btn-save">Simpan</button>
             </form>
         </div>
@@ -1080,7 +1148,7 @@
     <div id="addAkunModal" class="modal small">
         <div class="modal-content">
             <span class="close" onclick="closeAddAkunModal()">&times;</span>
-            <h2>Tambah Akun Game</h2>
+            <h2><i class="fas fa-plus-circle"></i> Tambah Akun Game</h2>
             <form id="addAkunForm" onsubmit="event.preventDefault(); saveAkun()">
                 <div class="form-group">
                     <label>Game</label>
@@ -1131,7 +1199,7 @@
     <div id="addSaldoPackageModal" class="modal small">
         <div class="modal-content">
             <span class="close" onclick="closeAddSaldoPackageModal()">&times;</span>
-            <h2>Tambah Paket Deposit Saldo</h2>
+            <h2><i class="fas fa-plus-circle"></i> Tambah Paket Deposit Saldo</h2>
             <form id="addSaldoPackageForm" onsubmit="event.preventDefault(); saveSaldoPackage()">
                 <div class="form-group">
                     <label>Nama Paket</label>
@@ -1158,7 +1226,7 @@
     <div id="addResellerPackageModal" class="modal small">
         <div class="modal-content">
             <span class="close" onclick="closeAddResellerPackageModal()">&times;</span>
-            <h2>Tambah Paket Deposit Reseller</h2>
+            <h2><i class="fas fa-plus-circle"></i> Tambah Paket Deposit Reseller</h2>
             <form id="addResellerPackageForm" onsubmit="event.preventDefault(); saveResellerPackage()">
                 <div class="form-group">
                     <label>Nama Paket</label>
@@ -1185,7 +1253,7 @@
     <div id="previewBuktiModal" class="modal">
         <div class="modal-content large">
             <span class="close" onclick="closePreviewBuktiModal()">&times;</span>
-            <h2>Detail Bukti Pembayaran</h2>
+            <h2><i class="fas fa-image"></i> Detail Bukti Pembayaran</h2>
             
             <div class="bukti-detail-container">
                 <div class="bukti-image-section">
@@ -1209,10 +1277,10 @@
                     
                     <h3>Aksi Konfirmasi</h3>
                     <div class="konfirmasi-actions">
-                        <button class="btn-konfirmasi" id="btnKonfirmasi" onclick="konfirmasiPembayaran()">
+                        <button class="btn-konfirmasi" id="btnKonfirmasi" onclick="konfirmasiTransaksi(currentPreviewTransaction?.transactionId)">
                             <i class="fas fa-check"></i> Konfirmasi
                         </button>
-                        <button class="btn-tolak" id="btnTolak" onclick="tolakPembayaran()">
+                        <button class="btn-tolak" id="btnTolak" onclick="tolakTransaksi(currentPreviewTransaction?.transactionId)">
                             <i class="fas fa-times"></i> Tolak
                         </button>
                     </div>
