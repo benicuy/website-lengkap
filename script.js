@@ -1,4 +1,4 @@
-// ==================== DATA STORE ====================
+// ==================== DATA STORE UPDATE ====================
 let users = JSON.parse(localStorage.getItem('users')) || [
     {
         id: 1,
@@ -6,138 +6,1018 @@ let users = JSON.parse(localStorage.getItem('users')) || [
         email: 'admin@gamevault.com',
         password: 'admin123',
         role: 'admin',
-        saldo: 1000000,
+        saldo_akun: 10000000, // Saldo akun untuk transaksi
+        saldo_reseller: 0,
         status: 'active',
-        joinDate: new Date().toISOString()
+        isReseller: false,
+        joinDate: new Date().toISOString(),
+        fcmToken: null,
+        notifSettings: {
+            newTransaction: true,
+            paymentConfirm: true,
+            akunDelivery: true,
+            promo: true
+        }
     }
 ];
 
 let products = JSON.parse(localStorage.getItem('products')) || [
-    { id: 1, game: 'Mobile Legends', item: '86 Diamonds', price: 20000, category: 'mobile' },
-    { id: 2, game: 'Mobile Legends', item: '172 Diamonds', price: 40000, category: 'mobile' },
-    { id: 3, game: 'Mobile Legends', item: '257 Diamonds', price: 60000, category: 'mobile' },
-    { id: 4, game: 'PUBG Mobile', item: '60 UC', price: 15000, category: 'pc' },
-    { id: 5, game: 'PUBG Mobile', item: '180 UC', price: 45000, category: 'pc' },
-    { id: 6, game: 'Free Fire', item: '70 Diamonds', price: 10000, category: 'console' },
-    { id: 7, game: 'Free Fire', item: '140 Diamonds', price: 20000, category: 'console' },
-    { id: 8, game: 'Free Fire', item: '355 Diamonds', price: 50000, category: 'console' }
+    { id: 1, game: 'Mobile Legends', item: '86 Diamonds', price: 20000, reseller_price: 18000, category: 'mobile', image: 'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=200' },
+    { id: 2, game: 'Mobile Legends', item: '172 Diamonds', price: 40000, reseller_price: 36000, category: 'mobile', image: 'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=200' },
+    { id: 3, game: 'Mobile Legends', item: '257 Diamonds', price: 60000, reseller_price: 54000, category: 'mobile', image: 'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=200' },
+    { id: 4, game: 'PUBG Mobile', item: '60 UC', price: 15000, reseller_price: 13500, category: 'pubg', image: 'https://images.unsplash.com/photo-1600861194942-f883de0dfe96?w=200' },
+    { id: 5, game: 'PUBG Mobile', item: '180 UC', price: 45000, reseller_price: 40500, category: 'pubg', image: 'https://images.unsplash.com/photo-1600861194942-f883de0dfe96?w=200' },
+    { id: 6, game: 'Free Fire', item: '70 Diamonds', price: 10000, reseller_price: 9000, category: 'ff', image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=200' },
+    { id: 7, game: 'Free Fire', item: '140 Diamonds', price: 20000, reseller_price: 18000, category: 'ff', image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=200' },
+    { id: 8, game: 'Free Fire', item: '355 Diamonds', price: 50000, reseller_price: 45000, category: 'ff', image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=200' }
 ];
 
 let akunGames = JSON.parse(localStorage.getItem('akunGames')) || [
-    { id: 1, game: 'Mobile Legends', deskripsi: 'Akun Mythic 100+ skin', harga: 500000, detail: 'Email: ml123@gmail.com\nPassword: ml123', status: 'tersedia' },
-    { id: 2, game: 'PUBG Mobile', deskripsi: 'Akun Conqueror', harga: 750000, detail: 'Email: pubg123@gmail.com\nPassword: pubg123', status: 'tersedia' },
-    { id: 3, game: 'Free Fire', deskripsi: 'Akun Grandmaster', harga: 300000, detail: 'Email: ff123@gmail.com\nPassword: ff123', status: 'tersedia' }
-];
-
-let ewallet = [
-    { id: 1, name: 'DANA', fee: 1000, min: 10000, max: 2000000 },
-    { id: 2, name: 'OVO', fee: 1000, min: 10000, max: 2000000 },
-    { id: 3, name: 'GoPay', fee: 1000, min: 10000, max: 2000000 },
-    { id: 4, name: 'LinkAja', fee: 1000, min: 10000, max: 2000000 }
-];
-
-let banks = [
-    { id: 1, name: 'BCA', fee: 6500, min: 10000, max: 50000000 },
-    { id: 2, name: 'Mandiri', fee: 6500, min: 10000, max: 50000000 },
-    { id: 3, name: 'BNI', fee: 6500, min: 10000, max: 50000000 },
-    { id: 4, name: 'BRI', fee: 6500, min: 10000, max: 50000000 }
-];
-
-let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-let adminNotifications = JSON.parse(localStorage.getItem('admin_notifications')) || [];
-let userNotifications = JSON.parse(localStorage.getItem('user_notifications')) || [];
-
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-let currentPreviewTransaction = null;
-let uploadedImages = JSON.parse(localStorage.getItem('bukti_pembayaran')) || {};
-
-// ==================== INITIALIZATION ====================
-document.addEventListener('DOMContentLoaded', function() {
-    loadProducts();
-    loadAkun();
-    loadEwallet();
-    loadBank();
-    updateAuthUI();
-    updateTransaksiForm();
-    setupEventListeners();
-    checkUserNotifications();
-    updateAllBadges();
-    
-    // Set default upload bukti tampil
-    const uploadSection = document.getElementById('uploadBuktiSection');
-    if (uploadSection) {
-        uploadSection.style.display = 'block';
+    { 
+        id: 1, 
+        game: 'Mobile Legends', 
+        deskripsi: 'Akun Mythic 100+ skin', 
+        harga: 500000, 
+        harga_reseller: 450000,
+        detail: {
+            email: 'ml123@gmail.com',
+            password: 'ml123',
+            nickname: 'MLProPlayer',
+            level: 'Mythic',
+            skin_count: 120,
+            hero_count: 85,
+            screenshot: [
+                'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400',
+                'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400'
+            ]
+        }, 
+        status: 'tersedia' 
+    },
+    { 
+        id: 2, 
+        game: 'PUBG Mobile', 
+        deskripsi: 'Akun Conqueror', 
+        harga: 750000,
+        harga_reseller: 680000,
+        detail: {
+            email: 'pubg123@gmail.com',
+            password: 'pubg123',
+            nickname: 'PUBGPro',
+            tier: 'Conqueror',
+            uc: 1200,
+            skin_count: 85,
+            screenshot: [
+                'https://images.unsplash.com/photo-1600861194942-f883de0dfe96?w=400',
+                'https://images.unsplash.com/photo-1547394765-185e1e68f34e?w=400'
+            ]
+        }, 
+        status: 'tersedia' 
+    },
+    { 
+        id: 3, 
+        game: 'Free Fire', 
+        deskripsi: 'Akun Grandmaster', 
+        harga: 300000,
+        harga_reseller: 270000,
+        detail: {
+            email: 'ff123@gmail.com',
+            password: 'ff123',
+            nickname: 'FFPro',
+            rank: 'Grandmaster',
+            diamond: 500,
+            skin_count: 60,
+            screenshot: [
+                'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400',
+                'https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=400'
+            ]
+        }, 
+        status: 'tersedia' 
     }
-    
-    // Tampilkan QRIS jika metode QRIS
-    const paymentMethod = document.getElementById('paymentMethod');
-    if (paymentMethod) {
-        paymentMethod.addEventListener('change', toggleQRIS);
-    }
-});
+];
 
-// ==================== EVENT LISTENERS ====================
-function setupEventListeners() {
-    // Smooth scroll for navigation
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
+let saldoPackages = JSON.parse(localStorage.getItem('saldoPackages')) || [
+    { id: 1, name: 'Paket Hemat', nominal: 50000, bonus: 5, price: 50000 },
+    { id: 2, name: 'Paket Populer', nominal: 100000, bonus: 7, price: 100000 },
+    { id: 3, name: 'Paket Spesial', nominal: 250000, bonus: 10, price: 250000 },
+    { id: 4, name: 'Paket Sultan', nominal: 500000, bonus: 15, price: 500000 },
+    { id: 5, name: 'Paket HOKI', nominal: 1000000, bonus: 20, price: 1000000 }
+];
+
+let resellerPackages = JSON.parse(localStorage.getItem('resellerPackages')) || [
+    { id: 1, name: 'Reseller Pemula', nominal: 100000, bonus: 5, price: 100000 },
+    { id: 2, name: 'Reseller Pro', nominal: 500000, bonus: 7, price: 500000 },
+    { id: 3, name: 'Reseller Sultan', nominal: 1000000, bonus: 10, price: 1000000 },
+    { id: 4, name: 'Reseller Legend', nominal: 5000000, bonus: 15, price: 5000000 }
+];
+
+let depositHistory = JSON.parse(localStorage.getItem('depositHistory')) || [];
+let pembelianAkun = JSON.parse(localStorage.getItem('pembelian_akun')) || [];
+
+// ==================== FUNGSI ISI SALDO ====================
+function loadSaldoPackages() {
+    const grid = document.getElementById('saldoPackages');
+    if (!grid) return;
+    
+    grid.innerHTML = '';
+    
+    saldoPackages.forEach(pkg => {
+        const card = document.createElement('div');
+        card.className = 'package-card';
+        card.onclick = () => selectSaldoPackage(pkg.id);
+        card.innerHTML = `
+            <div class="package-name">${pkg.name}</div>
+            <div class="package-nominal">Rp ${formatRupiah(pkg.nominal)}</div>
+            <div class="package-bonus">Bonus ${pkg.bonus}%</div>
+            <div class="package-price">Rp ${formatRupiah(pkg.price)}</div>
+        `;
+        grid.appendChild(card);
     });
+}
 
-    // Active nav link on scroll
-    window.addEventListener('scroll', function() {
-        let sections = document.querySelectorAll('section');
-        let navLinks = document.querySelectorAll('.nav-menu a');
+function selectSaldoPackage(id) {
+    document.querySelectorAll('.package-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    event.currentTarget.classList.add('selected');
+    
+    const pkg = saldoPackages.find(p => p.id === id);
+    if (pkg) {
+        document.getElementById('customSaldo').value = pkg.nominal;
+        hitungBonusSaldo();
+    }
+}
+
+function hitungBonusSaldo() {
+    const nominal = parseFloat(document.getElementById('customSaldo').value);
+    if (nominal < 50000) {
+        showNotification('Minimal deposit Rp 50.000', 'warning');
+        return;
+    }
+    
+    let bonus = 0;
+    if (nominal >= 1000000) bonus = 15;
+    else if (nominal >= 500000) bonus = 10;
+    else if (nominal >= 100000) bonus = 7;
+    else if (nominal >= 50000) bonus = 5;
+    
+    const bonusAmount = nominal * bonus / 100;
+    const total = nominal + bonusAmount;
+    
+    document.getElementById('bonusAmount').textContent = `Rp ${formatRupiah(bonusAmount)}`;
+    document.getElementById('totalSaldo').textContent = `Rp ${formatRupiah(total)}`;
+    document.getElementById('bonusInfo').style.display = 'block';
+}
+
+function prosesDepositSaldo() {
+    if (!currentUser) {
+        showNotification('Silakan login terlebih dahulu!', 'warning');
+        showLoginModal();
+        return;
+    }
+    
+    const nominal = parseFloat(document.getElementById('customSaldo').value);
+    if (nominal < 50000) {
+        showNotification('Minimal deposit Rp 50.000', 'warning');
+        return;
+    }
+    
+    // Hitung bonus
+    let bonus = 0;
+    if (nominal >= 1000000) bonus = 15;
+    else if (nominal >= 500000) bonus = 10;
+    else if (nominal >= 100000) bonus = 7;
+    else if (nominal >= 50000) bonus = 5;
+    
+    const bonusAmount = nominal * bonus / 100;
+    const total = nominal + bonusAmount;
+    
+    // Buat transaksi deposit
+    const transactionId = 'DEP-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+    
+    const deposit = {
+        id: depositHistory.length + 1,
+        transactionId: transactionId,
+        userId: currentUser.id,
+        userName: currentUser.name,
+        nominal: nominal,
+        bonus: bonus,
+        bonusAmount: bonusAmount,
+        total: total,
+        status: 'menunggu_konfirmasi',
+        date: new Date().toISOString(),
+        paymentMethod: 'transfer'
+    };
+    
+    depositHistory.push(deposit);
+    localStorage.setItem('depositHistory', JSON.stringify(depositHistory));
+    
+    // Arahkan ke form transaksi
+    document.getElementById('layananType').value = 'isi_saldo';
+    updateForm();
+    
+    // Pilih paket yang sesuai
+    setTimeout(() => {
+        const select = document.getElementById('itemSelect');
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].text.includes(formatRupiah(nominal))) {
+                select.selectedIndex = i;
+                break;
+            }
+        }
+        hitungTotal();
+    }, 100);
+    
+    document.getElementById('transaksi').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ==================== UPDATE FUNGSI KONFIRMASI PEMBAYARAN ====================
+function konfirmasiPembayaran() {
+    if (!currentPreviewTransaction) return;
+    
+    if (confirm('Konfirmasi pembayaran ini? Status akan diubah menjadi SUCCESS')) {
+        const transaction = currentPreviewTransaction;
+        transaction.status = 'success';
         
-        sections.forEach(section => {
-            let top = section.offsetTop - 100;
-            let bottom = top + section.offsetHeight;
-            let scroll = window.scrollY;
-            
-            if (scroll >= top && scroll < bottom) {
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === '#' + section.id) {
-                        link.classList.add('active');
-                    }
-                });
+        // Jika transaksi adalah isi saldo, tambahkan saldo akun
+        if (transaction.type === 'isi_saldo') {
+            tambahSaldoAkun(transaction.userId, transaction.total, transaction.transactionId);
+        }
+        
+        // Jika transaksi adalah top up reseller, tambahkan saldo reseller
+        if (transaction.type === 'reseller') {
+            tambahSaldoReseller(transaction.userId, transaction.total, transaction.transactionId);
+        }
+        
+        // Jika transaksi adalah pembelian akun, kirim data akun ke buyer
+        if (transaction.type === 'akun') {
+            const akun = akunGames.find(a => a.id == transaction.itemId);
+            if (akun) {
+                kirimDataAkunKeBuyer(transaction.userId, transaction.transactionId, akun);
+                akun.status = 'terjual';
+                localStorage.setItem('akunGames', JSON.stringify(akunGames));
             }
+        }
+        
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+        
+        // Kirim notifikasi ke user
+        sendUserNotification(transaction.userId, 
+            `✅ Pembayaran untuk transaksi ${transaction.transactionId} telah DIKONFIRMASI! Terima kasih.`, 
+            'success'
+        );
+        
+        // Kirim notifikasi push ke user
+        sendNotificationToUser(transaction.userId,
+            '✅ Pembayaran Dikonfirmasi',
+            `Transaksi ${transaction.transactionId} telah berhasil. Terima kasih!`,
+            'success',
+            { transactionId: transaction.transactionId, type: 'payment_confirm' }
+        );
+        
+        closePreviewBuktiModal();
+        loadTransactionsTable();
+        showNotification('Pembayaran berhasil dikonfirmasi!', 'success');
+    }
+}
+
+function tambahSaldoAkun(userId, jumlah, transactionId) {
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+        users[userIndex].saldo_akun = (users[userIndex].saldo_akun || 0) + jumlah;
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        // Update currentUser jika sedang login
+        if (currentUser && currentUser.id === userId) {
+            currentUser.saldo_akun = users[userIndex].saldo_akun;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+        
+        // Kirim notifikasi khusus
+        sendUserNotification(userId,
+            `💰 Saldo akun Anda bertambah Rp ${formatRupiah(jumlah)} dari deposit ${transactionId}`,
+            'success'
+        );
+    }
+}
+
+function tambahSaldoReseller(userId, jumlah, transactionId) {
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+        users[userIndex].saldo_reseller = (users[userIndex].saldo_reseller || 0) + jumlah;
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        if (currentUser && currentUser.id === userId) {
+            currentUser.saldo_reseller = users[userIndex].saldo_reseller;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+        
+        sendUserNotification(userId,
+            `💰 Saldo reseller Anda bertambah Rp ${formatRupiah(jumlah)} dari deposit ${transactionId}`,
+            'success'
+        );
+    }
+}
+
+// ==================== FUNGSI KIRIM DATA AKUN KE BUYER ====================
+function kirimDataAkunKeBuyer(userId, transactionId, akun) {
+    // Format data akun untuk dikirim
+    const dataAkun = {
+        transactionId: transactionId,
+        game: akun.game,
+        deskripsi: akun.deskripsi,
+        email: akun.detail.email,
+        password: akun.detail.password,
+        nickname: akun.detail.nickname,
+        level: akun.detail.level || akun.detail.tier || akun.detail.rank,
+        skin_count: akun.detail.skin_count,
+        screenshot: akun.detail.screenshot,
+        tanggal: new Date().toISOString()
+    };
+    
+    // Simpan ke riwayat pembelian user
+    pembelianAkun.push({
+        userId: userId,
+        ...dataAkun
+    });
+    localStorage.setItem('pembelian_akun', JSON.stringify(pembelianAkun));
+    
+    // Kirim notifikasi in-app dengan data akun
+    const notifMessage = `🎮 Data Akun ${akun.game} untuk transaksi ${transactionId} sudah tersedia!\n\n` +
+        `📋 Detail Akun:\n` +
+        `Email: ${akun.detail.email}\n` +
+        `Password: ${akun.detail.password}\n` +
+        `Nickname: ${akun.detail.nickname}\n` +
+        `Level: ${akun.detail.level || akun.detail.tier || akun.detail.rank}\n` +
+        `Jumlah Skin: ${akun.detail.skin_count}\n\n` +
+        `🔐 Simpan data ini baik-baik dan segera ganti password setelah login.`;
+    
+    sendUserNotification(userId, notifMessage, 'success');
+    
+    // Kirim notifikasi push ke HP dengan data akun
+    sendNotificationToUser(userId,
+        `🎮 Data Akun ${akun.game} Tersedia`,
+        `Klik untuk melihat detail akun yang Anda beli.`,
+        'akun_delivered',
+        { 
+            transactionId: transactionId, 
+            type: 'akun_delivered',
+            akunId: akun.id
+        }
+    );
+}
+
+// ==================== FUNGSI MELIHAT AKUN SAYA ====================
+function showAkunSaya() {
+    if (!currentUser) {
+        showNotification('Silakan login terlebih dahulu!', 'warning');
+        showLoginModal();
+        return;
+    }
+    
+    const userPurchases = pembelianAkun.filter(p => p.userId === currentUser.id);
+    const grid = document.getElementById('akunSayaGrid');
+    
+    grid.innerHTML = '';
+    
+    if (userPurchases.length === 0) {
+        grid.innerHTML = '<p class="no-data">Belum ada akun yang dibeli</p>';
+    } else {
+        userPurchases.forEach(akun => {
+            const card = document.createElement('div');
+            card.className = 'akun-saya-card';
+            
+            const images = akun.screenshot ? akun.screenshot.map(src => 
+                `<img src="${src}" alt="Screenshot">`
+            ).join('') : '<p>Tidak ada screenshot</p>';
+            
+            card.innerHTML = `
+                <div class="akun-saya-images">
+                    ${images}
+                </div>
+                <div class="akun-saya-info">
+                    <h3>${akun.game}</h3>
+                    <p>${akun.deskripsi}</p>
+                    <div class="akun-saya-detail">
+                        <p><i class="fas fa-envelope"></i> ${akun.email}</p>
+                        <p><i class="fas fa-lock"></i> ${akun.password.replace(/./g, '*')}</p>
+                        <p><i class="fas fa-user"></i> ${akun.nickname}</p>
+                        <p><i class="fas fa-trophy"></i> ${akun.level}</p>
+                        <p><i class="fas fa-tshirt"></i> ${akun.skin_count} Skin</p>
+                    </div>
+                    <button class="btn-lihat-akun" onclick="lihatDetailAkun('${akun.transactionId}')">
+                        <i class="fas fa-eye"></i> Lihat Detail
+                    </button>
+                </div>
+            `;
+            grid.appendChild(card);
         });
+    }
+    
+    document.getElementById('akunSayaModal').style.display = 'block';
+}
+
+function lihatDetailAkun(transactionId) {
+    const akun = pembelianAkun.find(a => a.transactionId === transactionId);
+    if (!akun) return;
+    
+    const content = document.getElementById('detailAkunContent');
+    content.innerHTML = `
+        <h3>${akun.game} - ${akun.deskripsi}</h3>
+        <p><i class="fas fa-envelope"></i> <strong>Email:</strong> ${akun.email}</p>
+        <p><i class="fas fa-lock"></i> <strong>Password:</strong> ${akun.password}</p>
+        <p><i class="fas fa-user"></i> <strong>Nickname:</strong> ${akun.nickname}</p>
+        <p><i class="fas fa-trophy"></i> <strong>Level/Rank:</strong> ${akun.level}</p>
+        <p><i class="fas fa-tshirt"></i> <strong>Jumlah Skin:</strong> ${akun.skin_count}</p>
+        <p><i class="fas fa-calendar"></i> <strong>Dibeli:</strong> ${formatDate(akun.tanggal)}</p>
+    `;
+    
+    document.getElementById('detailAkunModal').style.display = 'block';
+}
+
+function copyDataAkun() {
+    const content = document.getElementById('detailAkunContent').innerText;
+    navigator.clipboard.writeText(content).then(() => {
+        showNotification('Data akun berhasil disalin!', 'success');
     });
 }
 
-// ==================== AUTHENTICATION FUNCTIONS ====================
-function showLoginModal() {
-    document.getElementById('loginModal').style.display = 'block';
+function closeDetailAkunModal() {
+    document.getElementById('detailAkunModal').style.display = 'none';
 }
 
-function closeLoginModal() {
-    document.getElementById('loginModal').style.display = 'none';
+function closeAkunSayaModal() {
+    document.getElementById('akunSayaModal').style.display = 'none';
 }
 
-function showRegisterModal() {
-    document.getElementById('registerModal').style.display = 'block';
+// ==================== FUNGSI MELIHAT SALDO AKUN ====================
+function showSaldoAkun() {
+    if (!currentUser) {
+        showNotification('Silakan login terlebih dahulu!', 'warning');
+        showLoginModal();
+        return;
+    }
+    
+    document.getElementById('currentSaldoAkun').textContent = `Rp ${formatRupiah(currentUser.saldo_akun || 0)}`;
+    
+    // Load riwayat deposit
+    const userDeposits = depositHistory.filter(d => d.userId === currentUser.id);
+    const tbody = document.getElementById('saldoHistoryTable');
+    
+    tbody.innerHTML = '';
+    
+    if (userDeposits.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Belum ada deposit</td></tr>';
+    } else {
+        userDeposits.forEach(d => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${formatDate(d.date)}</td>
+                <td>Rp ${formatRupiah(d.nominal)}</td>
+                <td>${d.bonus}% (Rp ${formatRupiah(d.bonusAmount)})</td>
+                <td>Rp ${formatRupiah(d.total)}</td>
+                <td><span class="status-${d.status}">${d.status}</span></td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+    
+    document.getElementById('saldoAkunModal').style.display = 'block';
 }
 
-function closeRegisterModal() {
-    document.getElementById('registerModal').style.display = 'none';
+function closeSaldoAkunModal() {
+    document.getElementById('saldoAkunModal').style.display = 'none';
 }
 
-function switchToRegister() {
-    closeLoginModal();
-    showRegisterModal();
+// ==================== UPDATE FUNGSI PROSES TRANSAKSI ====================
+function prosesTransaksi() {
+    if (!currentUser) {
+        showNotification('Silakan login terlebih dahulu!', 'warning');
+        showLoginModal();
+        return;
+    }
+
+    const type = document.getElementById('layananType').value;
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const total = parseFloat(document.getElementById('totalHarga').textContent.replace('Rp ', '').replace(/\./g, ''));
+    
+    if (total <= 0) {
+        showNotification('Total tidak valid!', 'error');
+        return;
+    }
+    
+    // Cek jika menggunakan saldo
+    if (paymentMethod === 'saldo_akun') {
+        if ((currentUser.saldo_akun || 0) < total) {
+            showNotification('Saldo akun tidak mencukupi! Silakan isi saldo terlebih dahulu.', 'error');
+            showIsiSaldo();
+            return;
+        }
+        
+        // Kurangi saldo
+        currentUser.saldo_akun -= total;
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        users[userIndex].saldo_akun = currentUser.saldo_akun;
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        // Proses transaksi tanpa upload bukti
+        prosesTransaksiSukses(type, total, paymentMethod, null);
+        return;
+    }
+    
+    if (paymentMethod === 'saldo_reseller') {
+        if ((currentUser.saldo_reseller || 0) < total) {
+            showNotification('Saldo reseller tidak mencukupi!', 'error');
+            return;
+        }
+        
+        currentUser.saldo_reseller -= total;
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        users[userIndex].saldo_reseller = currentUser.saldo_reseller;
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        prosesTransaksiSukses(type, total, paymentMethod, null);
+        return;
+    }
+    
+    // Validasi upload bukti untuk metode non-saldo
+    const buktiFile = document.getElementById('buktiFile');
+    if (!buktiFile.files || buktiFile.files.length === 0) {
+        showNotification('Silakan upload bukti pembayaran terlebih dahulu!', 'warning');
+        document.getElementById('uploadArea').style.borderColor = '#dc3545';
+        return;
+    }
+    
+    // Upload bukti dan proses
+    const file = buktiFile.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        prosesTransaksiSukses(type, total, paymentMethod, {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            data: e.target.result
+        });
+    };
+    
+    reader.readAsDataURL(file);
 }
 
-function switchToLogin() {
-    closeRegisterModal();
-    showLoginModal();
+function prosesTransaksiSukses(type, total, paymentMethod, buktiData) {
+    const itemSelect = document.getElementById('itemSelect');
+    const itemId = itemSelect.value;
+    const jumlah = document.getElementById('jumlah').value;
+    const userId = document.getElementById('userId').value;
+    const server = document.getElementById('server').value;
+    
+    let itemDetail = '';
+    let itemInfo = {};
+    
+    if (type === 'topup') {
+        const product = products.find(p => p.id == itemId);
+        itemDetail = `${product.game} - ${product.item}`;
+        itemInfo = product;
+    } else if (type === 'akun') {
+        const akun = akunGames.find(a => a.id == itemId);
+        itemDetail = `${akun.game} - ${akun.deskripsi}`;
+        itemInfo = akun;
+    } else if (type === 'isi_saldo') {
+        const pkg = saldoPackages.find(p => p.id == itemId);
+        itemDetail = `Deposit Saldo - ${pkg.name} (Rp ${formatRupiah(pkg.nominal)})`;
+        itemInfo = pkg;
+    } else if (type === 'reseller') {
+        const pkg = resellerPackages.find(p => p.id == itemId);
+        itemDetail = `Deposit Reseller - ${pkg.name} (Rp ${formatRupiah(pkg.nominal)})`;
+        itemInfo = pkg;
+    } else if (type === 'ewallet') {
+        const wallet = ewallet.find(e => e.id == itemId);
+        itemDetail = `${wallet.name} - Top Up Rp ${formatRupiah(userId)}`;
+        itemInfo = wallet;
+    }
+
+    const transactionId = 'TRX-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+    const buktiId = 'BUKTI-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+    
+    if (buktiData) {
+        let allImages = JSON.parse(localStorage.getItem('bukti_pembayaran')) || {};
+        allImages[buktiId] = {
+            ...buktiData,
+            buktiId: buktiId,
+            transactionId: transactionId,
+            uploadDate: new Date().toISOString(),
+            userId: currentUser.id,
+            userName: currentUser.name
+        };
+        localStorage.setItem('bukti_pembayaran', JSON.stringify(allImages));
+    }
+    
+    const transaction = {
+        id: transactions.length + 1,
+        transactionId: transactionId,
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userEmail: currentUser.email,
+        type: type,
+        itemId: itemId,
+        itemDetail: itemDetail,
+        itemInfo: itemInfo,
+        jumlah: jumlah,
+        userId_input: userId,
+        server: server,
+        paymentMethod: paymentMethod,
+        total: total,
+        status: paymentMethod.includes('saldo') ? 'success' : 'menunggu_konfirmasi',
+        date: new Date().toISOString(),
+        buktiInfo: buktiData ? {
+            buktiId: buktiId,
+            name: buktiData.name,
+            size: buktiData.size,
+            type: buktiData.type,
+            uploadDate: new Date().toISOString()
+        } : null,
+        notes: ''
+    };
+
+    transactions.push(transaction);
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+
+    // If buying akun dengan saldo, langsung kirim data akun
+    if (type === 'akun' && paymentMethod.includes('saldo')) {
+        const akun = akunGames.find(a => a.id == itemId);
+        if (akun) {
+            kirimDataAkunKeBuyer(currentUser.id, transactionId, akun);
+            akun.status = 'terjual';
+            localStorage.setItem('akunGames', JSON.stringify(akunGames));
+        }
+    }
+
+    // Kirim notifikasi ke admin jika perlu konfirmasi
+    if (!paymentMethod.includes('saldo')) {
+        sendNotificationToAdmin(transaction);
+    }
+    
+    // Kirim notifikasi ke user
+    sendUserNotification(currentUser.id, 
+        paymentMethod.includes('saldo') 
+            ? `✅ Transaksi ${transactionId} berhasil! ${type === 'akun' ? 'Cek menu "Akun Saya" untuk data akun.' : ''}`
+            : `✅ Transaksi ${transactionId} berhasil dibuat. Admin akan segera mengkonfirmasi pembayaran Anda.`, 
+        'success'
+    );
+    
+    showNotification(paymentMethod.includes('saldo') 
+        ? 'Transaksi berhasil!' 
+        : 'Transaksi berhasil! Menunggu konfirmasi admin.', 
+        'success'
+    );
+    
+    resetForm();
 }
 
+// ==================== UPDATE FUNGSI LOAD TRANSAKSI ====================
+function loadTransactionsTable() {
+    const tbody = document.getElementById('transactionsTableBody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+
+    transactions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(t => {
+        const row = document.createElement('tr');
+        const statusClass = t.status === 'menunggu_konfirmasi' ? 'status-menunggu_konfirmasi' : 
+                           t.status === 'success' ? 'status-success' : 
+                           t.status === 'failed' ? 'status-failed' : 'status-pending';
+        
+        let buktiDisplay = '-';
+        if (t.buktiInfo) {
+            const allImages = JSON.parse(localStorage.getItem('bukti_pembayaran')) || {};
+            const imageData = allImages[t.buktiInfo.buktiId];
+            
+            if (imageData) {
+                buktiDisplay = `<img src="${imageData.data}" class="bukti-thumbnail" onclick="viewBuktiDetail('${t.transactionId}')" title="Klik untuk lihat detail">`;
+            } else {
+                buktiDisplay = '<span class="no-bukti">File tidak ditemukan</span>';
+            }
+        }
+        
+        row.innerHTML = `
+            <td>${t.transactionId}</td>
+            <td>
+                <strong>${t.userName}</strong><br>
+                <small>${t.userEmail}</small>
+            </td>
+            <td>${t.itemDetail}</td>
+            <td>Rp ${formatRupiah(t.total)}</td>
+            <td>${t.paymentMethod}</td>
+            <td class="bukti-cell">${buktiDisplay}</td>
+            <td><span class="${statusClass}">${t.status}</span></td>
+            <td>${formatDate(t.date)}</td>
+            <td>
+                ${t.status === 'menunggu_konfirmasi' ? `
+                    <button class="btn-konfirmasi" onclick="viewBuktiDetail('${t.transactionId}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-konfirmasi" onclick="konfirmasiCepat('${t.transactionId}')">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn-tolak" onclick="tolakCepat('${t.transactionId}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                ` : `
+                    <button class="btn-edit" onclick="viewBuktiDetail('${t.transactionId}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                `}
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// ==================== UPDATE FUNGSI VIEW BUKTI DETAIL ====================
+function viewBuktiDetail(transactionId) {
+    const transaction = transactions.find(t => t.transactionId === transactionId);
+    if (!transaction) return;
+    
+    currentPreviewTransaction = transaction;
+    
+    // Ambil gambar dari localStorage
+    const allImages = JSON.parse(localStorage.getItem('bukti_pembayaran')) || {};
+    const imageData = transaction.buktiInfo ? allImages[transaction.buktiInfo.buktiId] : null;
+    
+    if (!imageData && transaction.status === 'menunggu_konfirmasi') {
+        showNotification('Gambar bukti tidak ditemukan!', 'error');
+        return;
+    }
+    
+    // Tampilkan gambar jika ada
+    if (imageData) {
+        document.getElementById('detailBuktiImage').src = imageData.data;
+    } else {
+        document.getElementById('detailBuktiImage').src = 'https://via.placeholder.com/400x300?text=Tidak+Ada+Bukti';
+    }
+    
+    // Tampilkan info transaksi
+    const detailInfo = document.getElementById('detailTransaksi');
+    detailInfo.innerHTML = `
+        <p><i class="fas fa-hashtag"></i> <strong>ID:</strong> ${transaction.transactionId}</p>
+        <p><i class="fas fa-user"></i> <strong>User:</strong> ${transaction.userName} (${transaction.userEmail})</p>
+        <p><i class="fas fa-shopping-cart"></i> <strong>Item:</strong> ${transaction.itemDetail}</p>
+        <p><i class="fas fa-money-bill"></i> <strong>Total:</strong> Rp ${formatRupiah(transaction.total)}</p>
+        <p><i class="fas fa-credit-card"></i> <strong>Metode:</strong> ${transaction.paymentMethod}</p>
+        <p><i class="fas fa-calendar"></i> <strong>Tanggal:</strong> ${formatDate(transaction.date)}</p>
+        ${transaction.buktiInfo ? `
+            <p><i class="fas fa-image"></i> <strong>File:</strong> ${transaction.buktiInfo.name} (${(transaction.buktiInfo.size / 1024).toFixed(2)} KB)</p>
+            <p><i class="fas fa-clock"></i> <strong>Upload:</strong> ${formatDate(transaction.buktiInfo.uploadDate)}</p>
+        ` : ''}
+    `;
+    
+    // Tampilkan/sembunyikan tombol aksi
+    if (transaction.status === 'menunggu_konfirmasi') {
+        document.getElementById('catatanSection').style.display = 'none';
+        document.getElementById('btnKonfirmasi').style.display = 'flex';
+        document.getElementById('btnTolak').style.display = 'flex';
+        
+        document.getElementById('btnTolak').innerHTML = '<i class="fas fa-times"></i> Tolak';
+        document.getElementById('btnTolak').onclick = tolakPembayaran;
+    } else {
+        document.getElementById('catatanSection').style.display = 'none';
+        document.getElementById('btnKonfirmasi').style.display = 'none';
+        document.getElementById('btnTolak').style.display = 'none';
+    }
+    
+    document.getElementById('previewBuktiModal').style.display = 'block';
+}
+
+// ==================== UPDATE FUNGSI UPDATE FORM ====================
+function updateForm() {
+    const type = document.getElementById('layananType').value;
+    const itemSelect = document.getElementById('itemSelect');
+    const userIdField = document.getElementById('userIdField');
+    const serverField = document.getElementById('serverField');
+    const jumlahField = document.getElementById('jumlahField');
+    const akunDetailSection = document.getElementById('akunDetailSection');
+    const produkSection = document.getElementById('produkSection');
+    const paymentMethod = document.getElementById('paymentMethod');
+
+    itemSelect.innerHTML = '';
+    akunDetailSection.style.display = 'none';
+    produkSection.style.display = 'block';
+
+    if (type === 'topup') {
+        userIdField.style.display = 'block';
+        serverField.style.display = 'block';
+        jumlahField.style.display = 'block';
+        document.getElementById('userId').placeholder = 'Masukkan User ID';
+        products.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.id;
+            option.textContent = `${p.game} - ${p.item} (Rp ${formatRupiah(p.price)})`;
+            option.dataset.price = p.price;
+            option.dataset.resellerPrice = p.reseller_price;
+            option.dataset.type = 'product';
+            option.dataset.image = p.image;
+            itemSelect.appendChild(option);
+        });
+    } else if (type === 'akun') {
+        userIdField.style.display = 'none';
+        serverField.style.display = 'none';
+        jumlahField.style.display = 'none';
+        document.getElementById('jumlah').value = '1';
+        akunGames.forEach(a => {
+            if (a.status === 'tersedia') {
+                const option = document.createElement('option');
+                option.value = a.id;
+                option.textContent = `${a.game} - ${a.deskripsi} (Rp ${formatRupiah(a.harga)})`;
+                option.dataset.price = a.harga;
+                option.dataset.resellerPrice = a.harga_reseller;
+                option.dataset.type = 'akun';
+                option.dataset.akun = JSON.stringify(a);
+                itemSelect.appendChild(option);
+            }
+        });
+        
+        // Tampilkan preview saat memilih akun
+        itemSelect.onchange = function() {
+            const selected = itemSelect.options[itemSelect.selectedIndex];
+            if (selected && selected.dataset.akun) {
+                const akun = JSON.parse(selected.dataset.akun);
+                tampilkanPreviewAkun(akun);
+            }
+        };
+    } else if (type === 'isi_saldo') {
+        userIdField.style.display = 'none';
+        serverField.style.display = 'none';
+        jumlahField.style.display = 'none';
+        document.getElementById('jumlah').value = '1';
+        saldoPackages.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.id;
+            option.textContent = `${p.name} - Rp ${formatRupiah(p.nominal)} (Bonus ${p.bonus}%) - Bayar Rp ${formatRupiah(p.price)}`;
+            option.dataset.price = p.price;
+            option.dataset.nominal = p.nominal;
+            option.dataset.bonus = p.bonus;
+            option.dataset.type = 'saldo';
+            itemSelect.appendChild(option);
+        });
+    } else if (type === 'reseller') {
+        userIdField.style.display = 'none';
+        serverField.style.display = 'none';
+        jumlahField.style.display = 'none';
+        document.getElementById('jumlah').value = '1';
+        resellerPackages.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.id;
+            option.textContent = `${p.name} - Rp ${formatRupiah(p.nominal)} (Bonus ${p.bonus}%) - Bayar Rp ${formatRupiah(p.price)}`;
+            option.dataset.price = p.price;
+            option.dataset.nominal = p.nominal;
+            option.dataset.bonus = p.bonus;
+            option.dataset.type = 'reseller';
+            itemSelect.appendChild(option);
+        });
+    } else if (type === 'ewallet') {
+        userIdField.style.display = 'block';
+        serverField.style.display = 'none';
+        jumlahField.style.display = 'none';
+        document.getElementById('userId').placeholder = 'Nomor HP';
+        ewallet.forEach(e => {
+            const option = document.createElement('option');
+            option.value = e.id;
+            option.textContent = `${e.name} (Min: Rp ${formatRupiah(e.min)} - Max: Rp ${formatRupiah(e.max)})`;
+            option.dataset.min = e.min;
+            option.dataset.max = e.max;
+            option.dataset.fee = e.fee;
+            option.dataset.type = 'ewallet';
+            itemSelect.appendChild(option);
+        });
+    }
+
+    // Update payment method options
+    updatePaymentMethods(type);
+    
+    hitungTotal();
+}
+
+function tampilkanPreviewAkun(akun) {
+    const section = document.getElementById('akunDetailSection');
+    const imagesDiv = document.getElementById('akunImages');
+    const specsDiv = document.getElementById('akunSpecs');
+    
+    // Tampilkan gambar
+    imagesDiv.innerHTML = '';
+    if (akun.detail.screenshot && akun.detail.screenshot.length > 0) {
+        akun.detail.screenshot.forEach(src => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = 'Screenshot Akun';
+            img.onclick = () => zoomImage(src);
+            imagesDiv.appendChild(img);
+        });
+    }
+    
+    // Tampilkan spesifikasi
+    specsDiv.innerHTML = `
+        <p><i class="fas fa-user"></i> <strong>Nickname:</strong> ${akun.detail.nickname}</p>
+        <p><i class="fas fa-trophy"></i> <strong>Level/Rank:</strong> ${akun.detail.level || akun.detail.tier || akun.detail.rank}</p>
+        <p><i class="fas fa-tshirt"></i> <strong>Jumlah Skin:</strong> ${akun.detail.skin_count}</p>
+        ${akun.detail.hero_count ? `<p><i class="fas fa-users"></i> <strong>Hero:</strong> ${akun.detail.hero_count}</p>` : ''}
+        ${akun.detail.uc ? `<p><i class="fas fa-diamond"></i> <strong>UC:</strong> ${akun.detail.uc}</p>` : ''}
+        ${akun.detail.diamond ? `<p><i class="fas fa-gem"></i> <strong>Diamond:</strong> ${akun.detail.diamond}</p>` : ''}
+    `;
+    
+    section.style.display = 'block';
+}
+
+function updatePaymentMethods(type) {
+    const select = document.getElementById('paymentMethod');
+    select.innerHTML = '';
+    
+    // Tambah opsi e-wallet
+    const optEwallet = document.createElement('option');
+    optEwallet.value = 'ewallet';
+    optEwallet.textContent = 'E-Wallet';
+    select.appendChild(optEwallet);
+    
+    // Tambah opsi VA
+    const optVA = document.createElement('option');
+    optVA.value = 'va';
+    optVA.textContent = 'Virtual Account';
+    select.appendChild(optVA);
+    
+    // Tambah opsi QRIS
+    const optQRIS = document.createElement('option');
+    optQRIS.value = 'qris';
+    optQRIS.textContent = 'QRIS';
+    select.appendChild(optQRIS);
+    
+    // Tambah opsi saldo akun jika user punya saldo
+    if (currentUser && currentUser.saldo_akun > 0) {
+        const optSaldoAkun = document.createElement('option');
+        optSaldoAkun.value = 'saldo_akun';
+        optSaldoAkun.textContent = `Saldo Akun (Rp ${formatRupiah(currentUser.saldo_akun)})`;
+        select.appendChild(optSaldoAkun);
+    }
+    
+    // Tambah opsi saldo reseller jika user adalah reseller
+    if (currentUser && currentUser.isReseller && currentUser.saldo_reseller > 0) {
+        const optSaldoReseller = document.createElement('option');
+        optSaldoReseller.value = 'saldo_reseller';
+        optSaldoReseller.textContent = `Saldo Reseller (Rp ${formatRupiah(currentUser.saldo_reseller)})`;
+        select.appendChild(optSaldoReseller);
+    }
+}
+
+// ==================== UPDATE FUNGSI HITUNG TOTAL ====================
+function hitungTotal() {
+    const type = document.getElementById('layananType').value;
+    const itemSelect = document.getElementById('itemSelect');
+    const jumlah = document.getElementById('jumlah').value;
+    const userId = document.getElementById('userId').value;
+    
+    if (!itemSelect.options[itemSelect.selectedIndex]) return;
+    
+    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+    let total = 0;
+
+    if (type === 'topup' || type === 'akun') {
+        // Cek apakah user reseller
+        const price = currentUser && currentUser.isReseller && selectedOption.dataset.resellerPrice 
+            ? parseFloat(selectedOption.dataset.resellerPrice) 
+            : parseFloat(selectedOption.dataset.price) || 0;
+        total = price * parseInt(jumlah);
+    } else if (type === 'isi_saldo' || type === 'reseller') {
+        total = parseFloat(selectedOption.dataset.price) || 0;
+    } else if (type === 'ewallet') {
+        const nominal = parseFloat(userId) || 0;
+        const min = parseFloat(selectedOption.dataset.min) || 0;
+        const max = parseFloat(selectedOption.dataset.max) || 0;
+        const fee = parseFloat(selectedOption.dataset.fee) || 0;
+        
+        if (nominal < min) {
+            showNotification(`Minimal Rp ${formatRupiah(min)}`, 'warning');
+            total = 0;
+        } else if (nominal > max) {
+            showNotification(`Maksimal Rp ${formatRupiah(max)}`, 'warning');
+            total = 0;
+        } else {
+            total = nominal + fee;
+        }
+    }
+
+    document.getElementById('totalHarga').textContent = 'Rp ' + formatRupiah(total);
+    
+    // Tampilkan sisa saldo
+    if (currentUser) {
+        if (document.getElementById('sisaSaldoAkun')) {
+            document.getElementById('sisaSaldoAkunValue').textContent = `Rp ${formatRupiah(currentUser.saldo_akun || 0)}`;
+        }
+        if (document.getElementById('sisaSaldoReseller')) {
+            document.getElementById('sisaSaldoResellerValue').textContent = `Rp ${formatRupiah(currentUser.saldo_reseller || 0)}`;
+        }
+    }
+}
+
+// ==================== UPDATE FUNGSI LOGIN ====================
 function login() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
@@ -158,6 +1038,12 @@ function login() {
             checkUserNotifications();
         }
         
+        // Update badge saldo
+        updateSaldoBadges();
+        
+        // Update payment methods
+        updatePaymentMethods(document.getElementById('layananType').value);
+        
         // Reset form
         document.getElementById('loginEmail').value = '';
         document.getElementById('loginPassword').value = '';
@@ -166,11 +1052,26 @@ function login() {
     }
 }
 
+function updateSaldoBadges() {
+    if (currentUser) {
+        const saldoAkunBadge = document.getElementById('saldoAkunBadge');
+        const saldoResellerBadge = document.getElementById('saldoResellerBadge');
+        
+        if (saldoAkunBadge) {
+            saldoAkunBadge.textContent = `Rp ${formatRupiah(currentUser.saldo_akun || 0)}`;
+        }
+        if (saldoResellerBadge) {
+            saldoResellerBadge.textContent = `Rp ${formatRupiah(currentUser.saldo_reseller || 0)}`;
+        }
+    }
+}
+
 function register() {
     const name = document.getElementById('registerName').value;
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
     const confirmPassword = document.getElementById('registerConfirmPassword').value;
+    const asReseller = document.getElementById('registerAsReseller').value === 'yes';
 
     if (password !== confirmPassword) {
         showNotification('Password tidak cocok!', 'error');
@@ -188,9 +1089,18 @@ function register() {
         email: email,
         password: password,
         role: 'user',
-        saldo: 0,
+        saldo_akun: 0,
+        saldo_reseller: 0,
+        isReseller: asReseller,
         status: 'active',
-        joinDate: new Date().toISOString()
+        joinDate: new Date().toISOString(),
+        fcmToken: null,
+        notifSettings: {
+            newTransaction: true,
+            paymentConfirm: true,
+            akunDelivery: true,
+            promo: true
+        }
     };
 
     users.push(newUser);
@@ -205,1419 +1115,43 @@ function register() {
     document.getElementById('registerEmail').value = '';
     document.getElementById('registerPassword').value = '';
     document.getElementById('registerConfirmPassword').value = '';
-}
-
-function logout() {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    updateAuthUI();
-    showNotification('Anda telah logout', 'info');
-    
-    // Reload page to reset state
-    setTimeout(() => {
-        window.location.reload();
-    }, 1000);
-}
-
-function updateAuthUI() {
-    const navAuth = document.getElementById('navAuth');
-    const navUser = document.getElementById('navUser');
-    const userName = document.getElementById('userName');
-    const adminPanel = document.getElementById('adminPanel');
-
-    if (currentUser) {
-        navAuth.style.display = 'none';
-        navUser.style.display = 'flex';
-        userName.textContent = currentUser.name;
-        
-        if (currentUser.role === 'admin') {
-            adminPanel.style.display = 'block';
-        } else {
-            adminPanel.style.display = 'none';
-        }
-    } else {
-        navAuth.style.display = 'flex';
-        navUser.style.display = 'none';
-    }
-}
-
-// ==================== PRODUCT FUNCTIONS ====================
-function loadProducts() {
-    const grid = document.getElementById('gameGrid');
-    if (!grid) return;
-    
-    grid.innerHTML = '';
-
-    products.forEach(product => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-            <div class="product-image">
-                <i class="fas fa-gamepad"></i>
-            </div>
-            <div class="product-info">
-                <h3>${product.game}</h3>
-                <p>${product.item}</p>
-                <div class="product-price">Rp ${formatRupiah(product.price)}</div>
-                <button class="btn-beli-product" onclick="selectProduct(${product.id})">Beli</button>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-function loadAkun() {
-    const grid = document.getElementById('akunGrid');
-    if (!grid) return;
-    
-    grid.innerHTML = '';
-
-    akunGames.forEach(akun => {
-        if (akun.status === 'tersedia') {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.innerHTML = `
-                <div class="product-image">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="product-info">
-                    <h3>${akun.game}</h3>
-                    <p>${akun.deskripsi}</p>
-                    <div class="product-price">Rp ${formatRupiah(akun.harga)}</div>
-                    <button class="btn-beli-product" onclick="selectAkun(${akun.id})">Beli Akun</button>
-                </div>
-            `;
-            grid.appendChild(card);
-        }
-    });
-}
-
-function loadEwallet() {
-    const grid = document.getElementById('ewalletGrid');
-    if (!grid) return;
-    
-    grid.innerHTML = '';
-
-    ewallet.forEach(wallet => {
-        const card = document.createElement('div');
-        card.className = 'payment-card';
-        card.innerHTML = `
-            <i class="fas fa-wallet"></i>
-            <h3>${wallet.name}</h3>
-            <p>Min: Rp ${formatRupiah(wallet.min)}</p>
-            <p>Max: Rp ${formatRupiah(wallet.max)}</p>
-            <p class="payment-desc">Fee: Rp ${formatRupiah(wallet.fee)}</p>
-        `;
-        card.onclick = () => selectPayment('ewallet', wallet);
-        grid.appendChild(card);
-    });
-}
-
-function loadBank() {
-    const grid = document.getElementById('bankGrid');
-    if (!grid) return;
-    
-    grid.innerHTML = '';
-
-    banks.forEach(bank => {
-        const card = document.createElement('div');
-        card.className = 'payment-card';
-        card.innerHTML = `
-            <i class="fas fa-university"></i>
-            <h3>${bank.name}</h3>
-            <p>Min: Rp ${formatRupiah(bank.min)}</p>
-            <p>Max: Rp ${formatRupiah(bank.max)}</p>
-            <p class="payment-desc">Fee: Rp ${formatRupiah(bank.fee)}</p>
-        `;
-        card.onclick = () => selectPayment('bank', bank);
-        grid.appendChild(card);
-    });
-}
-
-// ==================== SEARCH AND FILTER FUNCTIONS ====================
-function searchGames() {
-    const searchTerm = document.getElementById('searchGame').value.toLowerCase();
-    const filtered = products.filter(p => 
-        p.game.toLowerCase().includes(searchTerm) || 
-        p.item.toLowerCase().includes(searchTerm)
-    );
-    
-    const grid = document.getElementById('gameGrid');
-    grid.innerHTML = '';
-
-    filtered.forEach(product => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-            <div class="product-image">
-                <i class="fas fa-gamepad"></i>
-            </div>
-            <div class="product-info">
-                <h3>${product.game}</h3>
-                <p>${product.item}</p>
-                <div class="product-price">Rp ${formatRupiah(product.price)}</div>
-                <button class="btn-beli-product" onclick="selectProduct(${product.id})">Beli</button>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-function filterGames() {
-    const category = document.getElementById('gameCategory').value;
-    const filtered = category === 'all' ? products : products.filter(p => p.category === category);
-    
-    const grid = document.getElementById('gameGrid');
-    grid.innerHTML = '';
-
-    filtered.forEach(product => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-            <div class="product-image">
-                <i class="fas fa-gamepad"></i>
-            </div>
-            <div class="product-info">
-                <h3>${product.game}</h3>
-                <p>${product.item}</p>
-                <div class="product-price">Rp ${formatRupiah(product.price)}</div>
-                <button class="btn-beli-product" onclick="selectProduct(${product.id})">Beli</button>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-// ==================== TRANSACTION FUNCTIONS ====================
-function updateTransaksiForm() {
-    const type = document.getElementById('layananType').value;
-    const itemSelect = document.getElementById('itemSelect');
-    const userIdField = document.getElementById('userIdField');
-    const serverField = document.getElementById('serverField');
-    const jumlahField = document.getElementById('jumlahField');
-
-    itemSelect.innerHTML = '';
-
-    if (type === 'topup') {
-        userIdField.style.display = 'block';
-        serverField.style.display = 'block';
-        jumlahField.style.display = 'block';
-        document.getElementById('userId').placeholder = 'Masukkan User ID';
-        products.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p.id;
-            option.textContent = `${p.game} - ${p.item} (Rp ${formatRupiah(p.price)})`;
-            option.dataset.price = p.price;
-            option.dataset.type = 'product';
-            itemSelect.appendChild(option);
-        });
-    } else if (type === 'akun') {
-        userIdField.style.display = 'none';
-        serverField.style.display = 'none';
-        jumlahField.style.display = 'none';
-        document.getElementById('jumlah').value = '1';
-        akunGames.forEach(a => {
-            if (a.status === 'tersedia') {
-                const option = document.createElement('option');
-                option.value = a.id;
-                option.textContent = `${a.game} - ${a.deskripsi} (Rp ${formatRupiah(a.harga)})`;
-                option.dataset.price = a.harga;
-                option.dataset.type = 'akun';
-                itemSelect.appendChild(option);
-            }
-        });
-    } else if (type === 'ewallet') {
-        userIdField.style.display = 'block';
-        serverField.style.display = 'none';
-        jumlahField.style.display = 'none';
-        document.getElementById('userId').placeholder = 'Nomor HP';
-        ewallet.forEach(e => {
-            const option = document.createElement('option');
-            option.value = e.id;
-            option.textContent = `${e.name} (Min: Rp ${formatRupiah(e.min)} - Max: Rp ${formatRupiah(e.max)})`;
-            option.dataset.min = e.min;
-            option.dataset.max = e.max;
-            option.dataset.fee = e.fee;
-            option.dataset.type = 'ewallet';
-            itemSelect.appendChild(option);
-        });
-    } else if (type === 'bank') {
-        userIdField.style.display = 'block';
-        serverField.style.display = 'none';
-        jumlahField.style.display = 'none';
-        document.getElementById('userId').placeholder = 'Nomor Rekening';
-        banks.forEach(b => {
-            const option = document.createElement('option');
-            option.value = b.id;
-            option.textContent = `${b.name} (Min: Rp ${formatRupiah(b.min)} - Max: Rp ${formatRupiah(b.max)})`;
-            option.dataset.min = b.min;
-            option.dataset.max = b.max;
-            option.dataset.fee = b.fee;
-            option.dataset.type = 'bank';
-            itemSelect.appendChild(option);
-        });
-    }
-
-    hitungTotal();
-}
-
-function hitungTotal() {
-    const type = document.getElementById('layananType').value;
-    const itemSelect = document.getElementById('itemSelect');
-    const jumlah = document.getElementById('jumlah').value;
-    const userId = document.getElementById('userId').value;
-    
-    if (!itemSelect.options[itemSelect.selectedIndex]) return;
-    
-    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
-    let total = 0;
-
-    if (type === 'topup' || type === 'akun') {
-        const price = parseFloat(selectedOption.dataset.price) || 0;
-        total = price * parseInt(jumlah);
-    } else if (type === 'ewallet' || type === 'bank') {
-        const nominal = parseFloat(userId) || 0;
-        const min = parseFloat(selectedOption.dataset.min) || 0;
-        const max = parseFloat(selectedOption.dataset.max) || 0;
-        const fee = parseFloat(selectedOption.dataset.fee) || 0;
-        
-        if (nominal < min) {
-            showNotification(`Minimal Rp ${formatRupiah(min)}`, 'warning');
-            total = 0;
-        } else if (nominal > max) {
-            showNotification(`Maksimal Rp ${formatRupiah(max)}`, 'warning');
-            total = 0;
-        } else {
-            total = nominal + fee;
-        }
-    }
-
-    document.getElementById('totalHarga').textContent = 'Rp ' + formatRupiah(total);
-}
-
-function prosesTransaksi() {
-    if (!currentUser) {
-        showNotification('Silakan login terlebih dahulu!', 'warning');
-        showLoginModal();
-        return;
-    }
-
-    // Validasi upload bukti
-    const buktiFile = document.getElementById('buktiFile');
-    if (!buktiFile.files || buktiFile.files.length === 0) {
-        showNotification('Silakan upload bukti pembayaran terlebih dahulu!', 'warning');
-        document.getElementById('uploadArea').style.borderColor = '#dc3545';
-        return;
-    }
-
-    const type = document.getElementById('layananType').value;
-    const itemSelect = document.getElementById('itemSelect');
-    const itemId = itemSelect.value;
-    const jumlah = document.getElementById('jumlah').value;
-    const userId = document.getElementById('userId').value;
-    const server = document.getElementById('server').value;
-    const paymentMethod = document.getElementById('paymentMethod').value;
-    const total = parseFloat(document.getElementById('totalHarga').textContent.replace('Rp ', '').replace(/\./g, ''));
-    
-    if (total <= 0) {
-        showNotification('Total tidak valid!', 'error');
-        return;
-    }
-
-    let itemDetail = '';
-    let itemInfo = {};
-    
-    if (type === 'topup') {
-        const product = products.find(p => p.id == itemId);
-        itemDetail = `${product.game} - ${product.item}`;
-        itemInfo = product;
-    } else if (type === 'akun') {
-        const akun = akunGames.find(a => a.id == itemId);
-        itemDetail = `${akun.game} - ${akun.deskripsi}`;
-        itemInfo = akun;
-    } else if (type === 'ewallet') {
-        const wallet = ewallet.find(e => e.id == itemId);
-        itemDetail = `${wallet.name} - Top Up Rp ${formatRupiah(userId)}`;
-        itemInfo = wallet;
-    } else if (type === 'bank') {
-        const bank = banks.find(b => b.id == itemId);
-        itemDetail = `${bank.name} - Transfer Rp ${formatRupiah(userId)}`;
-        itemInfo = bank;
-    }
-
-    // Generate unique ID
-    const transactionId = 'TRX-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
-    const buktiId = 'BUKTI-' + Date.now() + '-' + Math.random().toString(36).substr(2, 8).toUpperCase();
-    
-    // Simpan gambar dengan ID unik
-    const file = buktiFile.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        const imageData = {
-            buktiId: buktiId,
-            transactionId: transactionId,
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            data: e.target.result,
-            uploadDate: new Date().toISOString(),
-            userId: currentUser.id,
-            userName: currentUser.name
-        };
-        
-        // Simpan ke penyimpanan gambar
-        let allImages = JSON.parse(localStorage.getItem('bukti_pembayaran')) || {};
-        allImages[buktiId] = imageData;
-        localStorage.setItem('bukti_pembayaran', JSON.stringify(allImages));
-        
-        const transaction = {
-            id: transactions.length + 1,
-            transactionId: transactionId,
-            userId: currentUser.id,
-            userName: currentUser.name,
-            userEmail: currentUser.email,
-            type: type,
-            itemId: itemId,
-            itemDetail: itemDetail,
-            itemInfo: itemInfo,
-            jumlah: jumlah,
-            userId_input: userId,
-            server: server,
-            paymentMethod: paymentMethod,
-            total: total,
-            status: 'menunggu_konfirmasi',
-            date: new Date().toISOString(),
-            buktiInfo: {
-                buktiId: buktiId,
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                uploadDate: new Date().toISOString()
-            },
-            notes: ''
-        };
-
-        transactions.push(transaction);
-        localStorage.setItem('transactions', JSON.stringify(transactions));
-
-        // If buying akun, mark as sold
-        if (type === 'akun') {
-            const akun = akunGames.find(a => a.id == itemId);
-            akun.status = 'terjual';
-            localStorage.setItem('akunGames', JSON.stringify(akunGames));
-        }
-
-        // Kirim notifikasi ke admin
-        sendNotificationToAdmin(transaction);
-        
-        // Kirim notifikasi ke user
-        sendUserNotification(currentUser.id, 
-            `Transaksi ${transactionId} berhasil dibuat. Admin akan segera mengkonfirmasi pembayaran Anda.`, 
-            'success'
-        );
-        
-        showNotification('Transaksi berhasil! Menunggu konfirmasi admin.', 'success');
-        
-        // Reset form
-        resetForm();
-    };
-    
-    reader.readAsDataURL(file);
-}
-
-function resetForm() {
-    document.getElementById('userId').value = '';
-    document.getElementById('server').value = '';
-    document.getElementById('jumlah').value = '1';
-    document.getElementById('buktiFile').value = '';
-    document.getElementById('previewContainer').style.display = 'none';
-    document.getElementById('uploadStatus').style.display = 'none';
-    document.getElementById('previewImg').src = '#';
-    document.getElementById('fileInfo').innerHTML = '';
-    document.getElementById('uploadArea').style.borderColor = '#ccc';
-}
-
-// ==================== UPLOAD BUKTI FUNCTIONS ====================
-function previewBukti(input) {
-    const previewContainer = document.getElementById('previewContainer');
-    const previewImg = document.getElementById('previewImg');
-    const fileInfo = document.getElementById('fileInfo');
-    const uploadStatus = document.getElementById('uploadStatus');
-    const uploadArea = document.getElementById('uploadArea');
-    
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        
-        // Validasi ukuran file (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            showNotification('File terlalu besar! Maksimal 5MB', 'error');
-            input.value = '';
-            return;
-        }
-        
-        // Validasi tipe file
-        if (!file.type.match('image.*')) {
-            showNotification('File harus berupa gambar!', 'error');
-            input.value = '';
-            return;
-        }
-        
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            // Tampilkan preview
-            previewImg.src = e.target.result;
-            previewContainer.style.display = 'block';
-            
-            // Tampilkan info file
-            fileInfo.innerHTML = `
-                <i class="fas fa-check-circle" style="color: #28a745;"></i>
-                <strong>${file.name}</strong> - ${(file.size / 1024).toFixed(2)} KB
-            `;
-            
-            uploadStatus.style.display = 'flex';
-            uploadArea.style.borderColor = '#28a745';
-        }
-        
-        reader.readAsDataURL(file);
-    }
-}
-
-function removeBukti() {
-    document.getElementById('buktiFile').value = '';
-    document.getElementById('previewContainer').style.display = 'none';
-    document.getElementById('uploadStatus').style.display = 'none';
-    document.getElementById('previewImg').src = '#';
-    document.getElementById('fileInfo').innerHTML = '';
-    document.getElementById('uploadArea').style.borderColor = '#ccc';
-}
-
-// ==================== QRIS FUNCTIONS ====================
-function toggleQRIS() {
-    const paymentMethod = document.getElementById('paymentMethod').value;
-    const qrisSection = document.getElementById('qrisSection');
-    
-    if (paymentMethod === 'qris') {
-        qrisSection.style.display = 'block';
-    } else {
-        qrisSection.style.display = 'none';
-    }
-}
-
-function zoomQRIS() {
-    document.getElementById('qrisZoomModal').style.display = 'block';
-}
-
-function closeQRISZoom() {
-    document.getElementById('qrisZoomModal').style.display = 'none';
-}
-
-function copyQRIS() {
-    const qrisUrl = 'https://cdn.phototourl.com/uploads/2026-02-14-fa0f1899-4605-43bb-947b-27c76ee1a1e6.jpg';
-    
-    // Create temporary input
-    const tempInput = document.createElement('input');
-    tempInput.value = qrisUrl;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempInput);
-    
-    showNotification('Link QRIS berhasil disalin!', 'success');
-}
-
-// ==================== SELECTION FUNCTIONS ====================
-function selectProduct(id) {
-    document.getElementById('layananType').value = 'topup';
-    updateTransaksiForm();
-    setTimeout(() => {
-        document.getElementById('itemSelect').value = id;
-        hitungTotal();
-    }, 100);
-    document.getElementById('transaksi').scrollIntoView({ behavior: 'smooth' });
-}
-
-function selectAkun(id) {
-    document.getElementById('layananType').value = 'akun';
-    updateTransaksiForm();
-    setTimeout(() => {
-        document.getElementById('itemSelect').value = id;
-        hitungTotal();
-    }, 100);
-    document.getElementById('transaksi').scrollIntoView({ behavior: 'smooth' });
-}
-
-function selectPayment(type, item) {
-    document.getElementById('layananType').value = type;
-    updateTransaksiForm();
-    setTimeout(() => {
-        document.getElementById('itemSelect').value = item.id;
-        hitungTotal();
-    }, 100);
-    document.getElementById('transaksi').scrollIntoView({ behavior: 'smooth' });
-}
-
-// ==================== NOTIFICATION FUNCTIONS ====================
-function sendNotificationToAdmin(transaction) {
-    const notification = {
-        id: 'NOTIF-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-        transactionId: transaction.transactionId,
-        userId: transaction.userId,
-        userName: transaction.userName,
-        title: 'Pembayaran Baru Menunggu Konfirmasi',
-        message: `Pembayaran dari ${transaction.userName} - Rp ${formatRupiah(transaction.total)} menunggu konfirmasi. Klik untuk lihat bukti.`,
-        type: 'payment',
-        status: 'unread',
-        date: new Date().toISOString(),
-        transaction: transaction
-    };
-    
-    adminNotifications.push(notification);
-    localStorage.setItem('admin_notifications', JSON.stringify(adminNotifications));
-    
-    updateAdminNotificationBadge();
-    
-    // Tampilkan notifikasi popup jika admin sedang online
-    if (currentUser && currentUser.role === 'admin') {
-        showNotification(`Pembayaran baru dari ${transaction.userName}`, 'info');
-    }
-}
-
-function sendUserNotification(userId, message, type = 'info') {
-    const notification = {
-        id: 'USER-NOTIF-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-        userId: userId,
-        title: type === 'success' ? 'Berhasil' : type === 'warning' ? 'Peringatan' : 'Informasi',
-        message: message,
-        type: type,
-        status: 'unread',
-        date: new Date().toISOString()
-    };
-    
-    userNotifications.push(notification);
-    localStorage.setItem('user_notifications', JSON.stringify(userNotifications));
-    
-    updateUserNotificationBadge();
-    showNotification(message, type);
-}
-
-function updateAdminNotificationBadge() {
-    const adminNotifBadge = document.getElementById('adminNotifBadge');
-    if (!adminNotifBadge) return;
-    
-    const unreadCount = adminNotifications.filter(n => n.status === 'unread').length;
-    
-    if (unreadCount > 0) {
-        adminNotifBadge.style.display = 'inline';
-        adminNotifBadge.textContent = unreadCount;
-    } else {
-        adminNotifBadge.style.display = 'none';
-    }
-}
-
-function updateUserNotificationBadge() {
-    if (!currentUser) return;
-    
-    const notifBadge = document.getElementById('notifBadge');
-    if (!notifBadge) return;
-    
-    const unreadCount = userNotifications.filter(n => n.userId === currentUser.id && n.status === 'unread').length;
-    
-    if (unreadCount > 0) {
-        notifBadge.style.display = 'inline';
-        notifBadge.textContent = unreadCount;
-    } else {
-        notifBadge.style.display = 'none';
-    }
-}
-
-function updateAllBadges() {
-    updateAdminNotificationBadge();
-    updateUserNotificationBadge();
-}
-
-function checkUserNotifications() {
-    if (currentUser) {
-        const unreadCount = userNotifications.filter(n => n.userId === currentUser.id && n.status === 'unread').length;
-        
-        if (unreadCount > 0) {
-            showNotification(`Anda memiliki ${unreadCount} notifikasi baru`, 'info');
-        }
-    }
-}
-
-function showNotifications() {
-    if (!currentUser) {
-        showNotification('Silakan login terlebih dahulu!', 'warning');
-        return;
-    }
-    
-    const list = document.getElementById('userNotificationsList');
-    const userNotifs = userNotifications.filter(n => n.userId === currentUser.id).sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    list.innerHTML = '';
-    
-    if (userNotifs.length === 0) {
-        list.innerHTML = '<p class="no-notifications">Tidak ada notifikasi</p>';
-    } else {
-        userNotifs.forEach(notif => {
-            const notifElement = document.createElement('div');
-            notifElement.className = `notification-item ${notif.status}`;
-            notifElement.innerHTML = `
-                <div class="notification-title">${notif.title}</div>
-                <div class="notification-message">${notif.message}</div>
-                <div class="notification-date">${formatDate(notif.date)}</div>
-                <div class="notification-actions">
-                    <button class="btn-edit" onclick="markNotificationAsRead('${notif.id}')">Tandai Dibaca</button>
-                </div>
-            `;
-            list.appendChild(notifElement);
-        });
-    }
-    
-    document.getElementById('notificationsModal').style.display = 'block';
-}
-
-function closeNotificationsModal() {
-    document.getElementById('notificationsModal').style.display = 'none';
-}
-
-function markNotificationAsRead(notificationId) {
-    const notification = userNotifications.find(n => n.id === notificationId);
-    if (notification) {
-        notification.status = 'read';
-        localStorage.setItem('user_notifications', JSON.stringify(userNotifications));
-        updateUserNotificationBadge();
-        showNotifications(); // Refresh list
-    }
-}
-
-// ==================== ADMIN FUNCTIONS ====================
-function showAdminPanel() {
-    if (currentUser && currentUser.role === 'admin') {
-        loadAdminData();
-        document.getElementById('adminModal').style.display = 'block';
-    } else {
-        showNotification('Akses ditolak!', 'error');
-    }
-}
-
-function closeAdminModal() {
-    document.getElementById('adminModal').style.display = 'none';
-}
-
-function switchAdminTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
-    
-    const btn = document.querySelector(`.tab-btn[onclick="switchAdminTab('${tab}')"]`);
-    if (btn) btn.classList.add('active');
-    
-    const tabElement = document.getElementById(`admin${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
-    if (tabElement) tabElement.classList.add('active');
-    
-    if (tab === 'products') loadProductsTable();
-    if (tab === 'akun') loadAkunTable();
-    if (tab === 'users') loadUsersTable();
-    if (tab === 'transactions') loadTransactionsTable();
-    if (tab === 'notifications') loadAdminNotifications();
-}
-
-function loadAdminData() {
-    loadProductsTable();
-    loadAkunTable();
-    loadUsersTable();
-    loadTransactionsTable();
-    loadAdminNotifications();
-}
-
-function loadProductsTable() {
-    const tbody = document.getElementById('productsTableBody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-
-    products.forEach(p => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${p.id}</td>
-            <td>${p.game}</td>
-            <td>${p.item}</td>
-            <td>Rp ${formatRupiah(p.price)}</td>
-            <td>
-                <button class="btn-edit" onclick="editProduct(${p.id})">Edit</button>
-                <button class="btn-delete" onclick="deleteProduct(${p.id})">Hapus</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-function loadAkunTable() {
-    const tbody = document.getElementById('akunTableBody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-
-    akunGames.forEach(a => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${a.id}</td>
-            <td>${a.game}</td>
-            <td>${a.deskripsi}</td>
-            <td>Rp ${formatRupiah(a.harga)}</td>
-            <td><span class="status-${a.status}">${a.status}</span></td>
-            <td>
-                <button class="btn-edit" onclick="editAkun(${a.id})">Edit</button>
-                <button class="btn-delete" onclick="deleteAkun(${a.id})">Hapus</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-function loadUsersTable() {
-    const tbody = document.getElementById('usersTableBody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-
-    users.forEach(u => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${u.id}</td>
-            <td>${u.name}</td>
-            <td>${u.email}</td>
-            <td>${u.role}</td>
-            <td><span class="status-${u.status}">${u.status}</span></td>
-            <td>
-                <button class="btn-edit" onclick="editUser(${u.id})">Edit</button>
-                <button class="btn-delete" onclick="deleteUser(${u.id})">Hapus</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-function loadTransactionsTable() {
-    const tbody = document.getElementById('transactionsTableBody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-
-    transactions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(t => {
-        const row = document.createElement('tr');
-        const statusClass = t.status === 'menunggu_konfirmasi' ? 'status-menunggu_konfirmasi' : 
-                           t.status === 'success' ? 'status-success' : 
-                           t.status === 'failed' ? 'status-failed' : 'status-pending';
-        
-        // Buat thumbnail jika ada bukti
-        let buktiDisplay = '-';
-        if (t.buktiInfo) {
-            const allImages = JSON.parse(localStorage.getItem('bukti_pembayaran')) || {};
-            const imageData = allImages[t.buktiInfo.buktiId];
-            
-            if (imageData) {
-                buktiDisplay = `<img src="${imageData.data}" class="bukti-thumbnail" onclick="viewBuktiDetail('${t.transactionId}')" title="Klik untuk lihat detail">`;
-            } else {
-                buktiDisplay = '<span class="no-bukti">File tidak ditemukan</span>';
-            }
-        }
-        
-        row.innerHTML = `
-            <td>${t.transactionId}</td>
-            <td>
-                <strong>${t.userName}</strong><br>
-                <small>${t.userEmail}</small>
-            </td>
-            <td>${t.itemDetail}</td>
-            <td>Rp ${formatRupiah(t.total)}</td>
-            <td>${t.paymentMethod.toUpperCase()}</td>
-            <td class="bukti-cell">${buktiDisplay}</td>
-            <td><span class="${statusClass}">${t.status}</span></td>
-            <td>${formatDate(t.date)}</td>
-            <td>
-                ${t.status === 'menunggu_konfirmasi' ? `
-                    <button class="btn-konfirmasi" onclick="viewBuktiDetail('${t.transactionId}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn-konfirmasi" onclick="konfirmasiCepat('${t.transactionId}')">
-                        <i class="fas fa-check"></i>
-                    </button>
-                    <button class="btn-tolak" onclick="tolakCepat('${t.transactionId}')">
-                        <i class="fas fa-times"></i>
-                    </button>
-                ` : `
-                    <button class="btn-edit" onclick="viewBuktiDetail('${t.transactionId}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                `}
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-function loadAdminNotifications() {
-    const list = document.getElementById('adminNotificationsList');
-    if (!list) return;
-    
-    adminNotifications.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    list.innerHTML = '';
-    
-    if (adminNotifications.length === 0) {
-        list.innerHTML = '<p class="no-notifications">Tidak ada notifikasi</p>';
-    } else {
-        adminNotifications.forEach(notif => {
-            const notifElement = document.createElement('div');
-            notifElement.className = `notification-item ${notif.status}`;
-            notifElement.innerHTML = `
-                <div class="notification-title">${notif.title}</div>
-                <div class="notification-message">${notif.message}</div>
-                <div class="notification-date">${formatDate(notif.date)}</div>
-                <div class="notification-actions">
-                    <button class="btn-edit" onclick="markAdminNotificationAsRead('${notif.id}')">Tandai Dibaca</button>
-                    <button class="btn-edit" onclick="viewBuktiDetail('${notif.transactionId}')">Lihat Transaksi</button>
-                </div>
-            `;
-            list.appendChild(notifElement);
-        });
-    }
-}
-
-function markAdminNotificationAsRead(notificationId) {
-    const notification = adminNotifications.find(n => n.id === notificationId);
-    if (notification) {
-        notification.status = 'read';
-        localStorage.setItem('admin_notifications', JSON.stringify(adminNotifications));
-        updateAdminNotificationBadge();
-        loadAdminNotifications();
-    }
-}
-
-function viewBuktiDetail(transactionId) {
-    const transaction = transactions.find(t => t.transactionId === transactionId);
-    if (!transaction) return;
-    
-    currentPreviewTransaction = transaction;
-    
-    // Ambil gambar dari localStorage
-    const allImages = JSON.parse(localStorage.getItem('bukti_pembayaran')) || {};
-    const imageData = transaction.buktiInfo ? allImages[transaction.buktiInfo.buktiId] : null;
-    
-    if (!imageData) {
-        showNotification('Gambar bukti tidak ditemukan!', 'error');
-        return;
-    }
-    
-    // Tampilkan gambar
-    document.getElementById('detailBuktiImage').src = imageData.data;
-    
-    // Tampilkan info transaksi
-    const detailInfo = document.getElementById('detailTransaksi');
-    detailInfo.innerHTML = `
-        <p><i class="fas fa-hashtag"></i> <strong>ID:</strong> ${transaction.transactionId}</p>
-        <p><i class="fas fa-user"></i> <strong>User:</strong> ${transaction.userName} (${transaction.userEmail})</p>
-        <p><i class="fas fa-shopping-cart"></i> <strong>Item:</strong> ${transaction.itemDetail}</p>
-        <p><i class="fas fa-money-bill"></i> <strong>Total:</strong> Rp ${formatRupiah(transaction.total)}</p>
-        <p><i class="fas fa-credit-card"></i> <strong>Metode:</strong> ${transaction.paymentMethod.toUpperCase()}</p>
-        <p><i class="fas fa-calendar"></i> <strong>Tanggal:</strong> ${formatDate(transaction.date)}</p>
-        <p><i class="fas fa-image"></i> <strong>File:</strong> ${transaction.buktiInfo.name} (${(transaction.buktiInfo.size / 1024).toFixed(2)} KB)</p>
-        <p><i class="fas fa-clock"></i> <strong>Upload:</strong> ${formatDate(transaction.buktiInfo.uploadDate)}</p>
-    `;
-    
-    // Tampilkan/sembunyikan tombol aksi
-    if (transaction.status === 'menunggu_konfirmasi') {
-        document.getElementById('catatanSection').style.display = 'none';
-        document.getElementById('btnKonfirmasi').style.display = 'flex';
-        document.getElementById('btnTolak').style.display = 'flex';
-        
-        // Reset tombol tolak
-        document.getElementById('btnTolak').innerHTML = '<i class="fas fa-times"></i> Tolak';
-        document.getElementById('btnTolak').onclick = tolakPembayaran;
-    } else {
-        document.getElementById('catatanSection').style.display = 'none';
-        document.getElementById('btnKonfirmasi').style.display = 'none';
-        document.getElementById('btnTolak').style.display = 'none';
-    }
-    
-    document.getElementById('previewBuktiModal').style.display = 'block';
-}
-
-function closePreviewBuktiModal() {
-    document.getElementById('previewBuktiModal').style.display = 'none';
-    currentPreviewTransaction = null;
-}
-
-function konfirmasiPembayaran() {
-    if (!currentPreviewTransaction) return;
-    
-    if (confirm('Konfirmasi pembayaran ini? Status akan diubah menjadi SUCCESS')) {
-        const transaction = currentPreviewTransaction;
-        transaction.status = 'success';
-        localStorage.setItem('transactions', JSON.stringify(transactions));
-        
-        // Kirim notifikasi ke user
-        sendUserNotification(transaction.userId, 
-            `Pembayaran untuk transaksi ${transaction.transactionId} telah DIKONFIRMASI! Terima kasih.`, 
-            'success'
-        );
-        
-        closePreviewBuktiModal();
-        loadTransactionsTable();
-        showNotification('Pembayaran berhasil dikonfirmasi!', 'success');
-    }
-}
-
-function tolakPembayaran() {
-    if (!currentPreviewTransaction) return;
-    
-    const catatanSection = document.getElementById('catatanSection');
-    catatanSection.style.display = 'block';
-    
-    // Ganti fungsi tombol
-    document.getElementById('btnTolak').innerHTML = '<i class="fas fa-check"></i> Ya, Tolak';
-    document.getElementById('btnTolak').onclick = function() {
-        prosesPenolakan();
-    };
-}
-
-function prosesPenolakan() {
-    const catatan = document.getElementById('catatanPenolakan').value;
-    
-    if (!catatan) {
-        showNotification('Harap isi alasan penolakan!', 'warning');
-        return;
-    }
-    
-    if (confirm('Tolak pembayaran ini? Status akan diubah menjadi FAILED')) {
-        const transaction = currentPreviewTransaction;
-        transaction.status = 'failed';
-        transaction.notes = catatan;
-        localStorage.setItem('transactions', JSON.stringify(transactions));
-        
-        // Kirim notifikasi ke user
-        sendUserNotification(transaction.userId, 
-            `Pembayaran untuk transaksi ${transaction.transactionId} DITOLAK. Alasan: ${catatan}`, 
-            'error'
-        );
-        
-        closePreviewBuktiModal();
-        loadTransactionsTable();
-        showNotification('Pembayaran ditolak!', 'info');
-    }
-}
-
-function konfirmasiCepat(transactionId) {
-    if (confirm('Konfirmasi pembayaran ini?')) {
-        const transaction = transactions.find(t => t.transactionId === transactionId);
-        if (transaction) {
-            transaction.status = 'success';
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-            
-            sendUserNotification(transaction.userId, 
-                `Pembayaran untuk transaksi ${transactionId} telah DIKONFIRMASI!`, 
-                'success'
-            );
-            
-            loadTransactionsTable();
-            showNotification('Pembayaran dikonfirmasi!', 'success');
-        }
-    }
-}
-
-function tolakCepat(transactionId) {
-    const alasan = prompt('Alasan penolakan:');
-    if (alasan) {
-        const transaction = transactions.find(t => t.transactionId === transactionId);
-        if (transaction) {
-            transaction.status = 'failed';
-            transaction.notes = alasan;
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-            
-            sendUserNotification(transaction.userId, 
-                `Pembayaran untuk transaksi ${transactionId} DITOLAK. Alasan: ${alasan}`, 
-                'error'
-            );
-            
-            loadTransactionsTable();
-            showNotification('Pembayaran ditolak!', 'info');
-        }
-    }
-}
-
-function showAddProductForm() {
-    document.getElementById('addProductModal').style.display = 'block';
-}
-
-function closeAddProductModal() {
-    document.getElementById('addProductModal').style.display = 'none';
-    document.getElementById('addProductForm').reset();
-}
-
-function saveProduct() {
-    const game = document.getElementById('productGame').value;
-    const item = document.getElementById('productItem').value;
-    const price = document.getElementById('productPrice').value;
-    const category = document.getElementById('productCategory').value;
-
-    const newProduct = {
-        id: products.length + 1,
-        game: game,
-        item: item,
-        price: parseFloat(price),
-        category: category
-    };
-
-    products.push(newProduct);
-    localStorage.setItem('products', JSON.stringify(products));
-    
-    closeAddProductModal();
-    loadProductsTable();
-    loadProducts();
-    showNotification('Produk berhasil ditambahkan!', 'success');
-}
-
-function editProduct(id) {
-    const product = products.find(p => p.id === id);
-    const newPrice = prompt('Edit harga untuk ' + product.game + ' - ' + product.item + ':', product.price);
-    
-    if (newPrice && !isNaN(newPrice)) {
-        product.price = parseFloat(newPrice);
-        localStorage.setItem('products', JSON.stringify(products));
-        loadProductsTable();
-        loadProducts();
-        showNotification('Produk berhasil diupdate!', 'success');
-    }
-}
-
-function deleteProduct(id) {
-    if (confirm('Yakin ingin menghapus produk ini?')) {
-        products = products.filter(p => p.id !== id);
-        localStorage.setItem('products', JSON.stringify(products));
-        loadProductsTable();
-        loadProducts();
-        showNotification('Produk berhasil dihapus!', 'success');
-    }
-}
-
-function showAddAkunForm() {
-    document.getElementById('addAkunModal').style.display = 'block';
-}
-
-function closeAddAkunModal() {
-    document.getElementById('addAkunModal').style.display = 'none';
-    document.getElementById('addAkunForm').reset();
-}
-
-function saveAkun() {
-    const game = document.getElementById('akunGame').value;
-    const deskripsi = document.getElementById('akunDeskripsi').value;
-    const harga = document.getElementById('akunPrice').value;
-    const detail = document.getElementById('akunDetail').value;
-
-    const newAkun = {
-        id: akunGames.length + 1,
-        game: game,
-        deskripsi: deskripsi,
-        harga: parseFloat(harga),
-        detail: detail,
-        status: 'tersedia'
-    };
-
-    akunGames.push(newAkun);
-    localStorage.setItem('akunGames', JSON.stringify(akunGames));
-    
-    closeAddAkunModal();
-    loadAkunTable();
-    loadAkun();
-    showNotification('Akun berhasil ditambahkan!', 'success');
-}
-
-function editAkun(id) {
-    const akun = akunGames.find(a => a.id === id);
-    const newHarga = prompt('Edit harga untuk ' + akun.game + ' - ' + akun.deskripsi + ':', akun.harga);
-    
-    if (newHarga && !isNaN(newHarga)) {
-        akun.harga = parseFloat(newHarga);
-        localStorage.setItem('akunGames', JSON.stringify(akunGames));
-        loadAkunTable();
-        loadAkun();
-        showNotification('Akun berhasil diupdate!', 'success');
-    }
-}
-
-function deleteAkun(id) {
-    if (confirm('Yakin ingin menghapus akun ini?')) {
-        akunGames = akunGames.filter(a => a.id !== id);
-        localStorage.setItem('akunGames', JSON.stringify(akunGames));
-        loadAkunTable();
-        loadAkun();
-        showNotification('Akun berhasil dihapus!', 'success');
-    }
-}
-
-function editUser(id) {
-    const user = users.find(u => u.id === id);
-    const newRole = prompt('Edit role (user/admin):', user.role);
-    
-    if (newRole && ['user', 'admin'].includes(newRole)) {
-        user.role = newRole;
-        localStorage.setItem('users', JSON.stringify(users));
-        loadUsersTable();
-        showNotification('User berhasil diupdate!', 'success');
-    }
-}
-
-function deleteUser(id) {
-    if (id === 1) {
-        showNotification('Tidak dapat menghapus admin utama!', 'error');
-        return;
-    }
-    
-    if (confirm('Yakin ingin menghapus user ini?')) {
-        users = users.filter(u => u.id !== id);
-        localStorage.setItem('users', JSON.stringify(users));
-        loadUsersTable();
-        showNotification('User berhasil dihapus!', 'success');
-    }
-}
-
-// ==================== FILTER DAN SEARCH FUNCTIONS ====================
-let currentFilter = 'all';
-
-function filterTransactions(status) {
-    currentFilter = status;
-    
-    // Update active button
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    applyFilterAndSearch();
-}
-
-function searchTransactions() {
-    applyFilterAndSearch();
-}
-
-function applyFilterAndSearch() {
-    const searchTerm = document.getElementById('searchTransaction').value.toLowerCase();
-    const tbody = document.getElementById('transactionsTableBody');
-    
-    let filteredTransactions = transactions;
-    
-    // Apply status filter
-    if (currentFilter !== 'all') {
-        filteredTransactions = filteredTransactions.filter(t => t.status === currentFilter);
-    }
-    
-    // Apply search filter
-    if (searchTerm) {
-        filteredTransactions = filteredTransactions.filter(t => 
-            t.transactionId.toLowerCase().includes(searchTerm) ||
-            t.userName.toLowerCase().includes(searchTerm) ||
-            t.userEmail.toLowerCase().includes(searchTerm) ||
-            t.itemDetail.toLowerCase().includes(searchTerm)
-        );
-    }
-    
-    // Sort by date (newest first)
-    filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    // Re-render table
-    tbody.innerHTML = '';
-    
-    if (filteredTransactions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Tidak ada transaksi</td></tr>';
-        return;
-    }
-    
-    filteredTransactions.forEach(t => {
-        const row = document.createElement('tr');
-        const statusClass = t.status === 'menunggu_konfirmasi' ? 'status-menunggu_konfirmasi' : 
-                           t.status === 'success' ? 'status-success' : 
-                           t.status === 'failed' ? 'status-failed' : 'status-pending';
-        
-        let buktiDisplay = '-';
-        if (t.buktiInfo) {
-            const allImages = JSON.parse(localStorage.getItem('bukti_pembayaran')) || {};
-            const imageData = allImages[t.buktiInfo.buktiId];
-            
-            if (imageData) {
-                buktiDisplay = `<img src="${imageData.data}" class="bukti-thumbnail" onclick="viewBuktiDetail('${t.transactionId}')" title="Klik untuk lihat detail">`;
-            } else {
-                buktiDisplay = '<span class="no-bukti">File tidak ditemukan</span>';
-            }
-        }
-        
-        row.innerHTML = `
-            <td>${t.transactionId}</td>
-            <td>
-                <strong>${t.userName}</strong><br>
-                <small>${t.userEmail}</small>
-            </td>
-            <td>${t.itemDetail}</td>
-            <td>Rp ${formatRupiah(t.total)}</td>
-            <td>${t.paymentMethod.toUpperCase()}</td>
-            <td class="bukti-cell">${buktiDisplay}</td>
-            <td><span class="${statusClass}">${t.status}</span></td>
-            <td>${formatDate(t.date)}</td>
-            <td>
-                ${t.status === 'menunggu_konfirmasi' ? `
-                    <button class="btn-konfirmasi" onclick="viewBuktiDetail('${t.transactionId}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn-konfirmasi" onclick="konfirmasiCepat('${t.transactionId}')">
-                        <i class="fas fa-check"></i>
-                    </button>
-                    <button class="btn-tolak" onclick="tolakCepat('${t.transactionId}')">
-                        <i class="fas fa-times"></i>
-                    </button>
-                ` : `
-                    <button class="btn-edit" onclick="viewBuktiDetail('${t.transactionId}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                `}
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-// ==================== ZOOM DAN DOWNLOAD FUNCTIONS ====================
-function zoomImage() {
-    const img = document.getElementById('detailBuktiImage');
-    document.getElementById('zoomImage').src = img.src;
-    document.getElementById('zoomImageModal').style.display = 'block';
-}
-
-function closeZoomModal() {
-    document.getElementById('zoomImageModal').style.display = 'none';
-}
-
-function downloadImage() {
-    const img = document.getElementById('detailBuktiImage');
-    const link = document.createElement('a');
-    link.href = img.src;
-    link.download = 'bukti-pembayaran-' + currentPreviewTransaction.transactionId + '.jpg';
-    link.click();
-}
-
-// ==================== PROFILE FUNCTIONS ====================
-function showProfile() {
-    if (currentUser) {
-        document.getElementById('profileName').value = currentUser.name;
-        document.getElementById('profileEmail').value = currentUser.email;
-        document.getElementById('profileRole').value = currentUser.role;
-        document.getElementById('profileSaldo').value = 'Rp ' + formatRupiah(currentUser.saldo || 0);
-        document.getElementById('profileMemberSince').value = formatDate(currentUser.joinDate);
-        document.getElementById('profileModal').style.display = 'block';
-    }
-}
-
-function closeProfileModal() {
-    document.getElementById('profileModal').style.display = 'none';
-}
-
-// ==================== HISTORY FUNCTIONS ====================
-function showHistory() {
-    if (currentUser) {
-        const tbody = document.getElementById('historyTableBody');
-        tbody.innerHTML = '';
-
-        const userTransactions = transactions.filter(t => t.userId === currentUser.id).sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        if (userTransactions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Belum ada transaksi</td></tr>';
-        } else {
-            userTransactions.forEach(t => {
-                // Cek apakah ada bukti
-                let buktiStatus = '-';
-                if (t.buktiInfo) {
-                    buktiStatus = '<i class="fas fa-check-circle" style="color: #28a745;"></i> Ada';
-                }
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${t.transactionId || t.id}</td>
-                    <td>${formatDate(t.date)}</td>
-                    <td>${t.itemDetail}</td>
-                    <td>${t.jumlah || 1}</td>
-                    <td>Rp ${formatRupiah(t.total)}</td>
-                    <td><span class="status-${t.status}">${t.status}</span></td>
-                    <td>${buktiStatus}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        document.getElementById('historyModal').style.display = 'block';
-    }
-}
-
-function closeHistoryModal() {
-    document.getElementById('historyModal').style.display = 'none';
-}
-
-// ==================== UTILITY FUNCTIONS ====================
-function formatRupiah(angka) {
-    if (isNaN(angka) || angka === null) return '0';
-    return new Intl.NumberFormat('id-ID').format(angka);
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification-toast ${type}`;
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
-        <span>${message}</span>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s';
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 3000);
+    document.getElementById('registerAsReseller').value = 'no';
 }
 
 // ==================== SECTION NAVIGATION ====================
-function showTopUp() {
-    document.getElementById('topup').scrollIntoView({ behavior: 'smooth' });
+function showIsiSaldo() {
+    loadSaldoPackages();
+    document.getElementById('isi-saldo').scrollIntoView({ behavior: 'smooth' });
 }
 
-function showAkun() {
-    document.getElementById('akun').scrollIntoView({ behavior: 'smooth' });
-}
-
-function showEwallet() {
-    document.getElementById('ewallet').scrollIntoView({ behavior: 'smooth' });
-}
-
-function showBank() {
-    document.getElementById('bank').scrollIntoView({ behavior: 'smooth' });
-}
-
-// ==================== CLOSE MODALS ON CLICK OUTSIDE ====================
-window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
+// ==================== INISIALISASI ====================
+document.addEventListener('DOMContentLoaded', function() {
+    loadProducts();
+    loadAkun();
+    loadSaldoPackages();
+    loadResellerPackages();
+    loadEwallet();
+    updateAuthUI();
+    updateTransaksiForm();
+    setupEventListeners();
+    checkUserNotifications();
+    updateAllBadges();
+    updateSaldoBadges();
+    
+    // Set default upload bukti tampil
+    const uploadSection = document.getElementById('uploadBuktiSection');
+    if (uploadSection) {
+        uploadSection.style.display = 'block';
     }
-}
+    
+    // Tampilkan QRIS jika metode QRIS
+    const paymentMethod = document.getElementById('paymentMethod');
+    if (paymentMethod) {
+        paymentMethod.addEventListener('change', toggleQRIS);
+    }
+    
+    // Setup Firebase messaging jika sudah login
+    if (currentUser) {
+        setupFirebaseMessaging();
+    }
+});
