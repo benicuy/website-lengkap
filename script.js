@@ -559,8 +559,8 @@ function selectResellerPackage(id) {
 
 function hitungBonusSaldo() {
     const nominal = parseFloat(document.getElementById('customSaldo').value);
-    if (nominal < 50000) {
-        showNotification('Minimal deposit Rp 50.000', 'warning');
+    if (nominal < 1000) {
+        showNotification('Minimal deposit Rp 1.000', 'warning');
         return;
     }
     
@@ -589,8 +589,8 @@ function prosesDepositSaldo() {
     }
     
     const nominal = parseFloat(document.getElementById('customSaldo').value);
-    if (nominal < 50000) {
-        showNotification('Minimal deposit Rp 50.000', 'warning');
+    if (nominal < 1000) {
+        showNotification('Minimal deposit Rp 1.000', 'warning');
         return;
     }
     
