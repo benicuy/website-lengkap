@@ -1,560 +1,169 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameVault - Top Up & Beli Akun Game</title>
-    <!-- CSS External -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <i class="fas fa-gamepad"></i>
-                <span>GameVault</span>
-            </div>
-            <div class="nav-menu" id="navMenu">
-                <ul>
-                    <li><a href="#home" class="active">Beranda</a></li>
-                    <li><a href="#topup">Top Up</a></li>
-                    <li><a href="#akun">Beli Akun</a></li>
-                    <li><a href="#ewallet">E-Wallet</a></li>
-                    <li><a href="#bank">Bank</a></li>
-                    <li><a href="#transaksi">Transaksi</a></li>
-                </ul>
-            </div>
-            <div class="nav-auth" id="navAuth">
-                <button class="btn-login" onclick="showLoginModal()">Login</button>
-                <button class="btn-register" onclick="showRegisterModal()">Daftar</button>
-            </div>
-            <div class="nav-user" id="navUser" style="display: none;">
-                <span id="userName"></span>
-                <div class="user-dropdown">
-                    <i class="fas fa-chevron-down"></i>
-                    <div class="dropdown-content">
-                        <a href="#" onclick="showProfile()"><i class="fas fa-user"></i> Profile</a>
-                        <a href="#" onclick="showHistory()"><i class="fas fa-history"></i> Riwayat</a>
-                        <a href="#" onclick="showNotifications()"><i class="fas fa-bell"></i> Notifikasi <span id="notifBadge" class="badge" style="display: none;">0</span></a>
-                        <a href="#" id="adminPanel" style="display: none;" onclick="showAdminPanel()"><i class="fas fa-cog"></i> Admin Panel</a>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="hero-container">
-            <div class="hero-content">
-                <h1>Top Up Game & Beli Akun <span>Termurah</span></h1>
-                <p>Dapatkan berbagai layanan top up game, e-wallet, dan akun game dengan harga terbaik dan proses cepat</p>
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <h3>10K+</h3>
-                        <p>Pelanggan</p>
-                    </div>
-                    <div class="stat-item">
-                        <h3>50+</h3>
-                        <p>Game</p>
-                    </div>
-                    <div class="stat-item">
-                        <h3>100%</h3>
-                        <p>Aman</p>
-                    </div>
-                </div>
-            </div>
-            <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Gaming">
-            </div>
-        </div>
-    </section>
-
-    <!-- Kategori Section -->
-    <section class="kategori">
-        <div class="container">
-            <h2>Layanan Kami</h2>
-            <div class="kategori-grid">
-                <div class="kategori-card" onclick="showTopUp()">
-                    <div class="kategori-icon">
-                        <i class="fas fa-dragon"></i>
-                    </div>
-                    <h3>Top Up Game</h3>
-                    <p>Top up berbagai game populer</p>
-                </div>
-                <div class="kategori-card" onclick="showAkun()">
-                    <div class="kategori-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>Beli Akun</h3>
-                    <p>Akun game siap pakai</p>
-                </div>
-                <div class="kategori-card" onclick="showEwallet()">
-                    <div class="kategori-icon">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                    <h3>E-Wallet</h3>
-                    <p>Top up DANA, OVO, Gopay</p>
-                </div>
-                <div class="kategori-card" onclick="showBank()">
-                    <div class="kategori-icon">
-                        <i class="fas fa-university"></i>
-                    </div>
-                    <h3>Transfer Bank</h3>
-                    <p>Semua bank tersedia</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Top Up Game Section -->
-    <section id="topup" class="products">
-        <div class="container">
-            <h2>Top Up Game</h2>
-            <div class="filter-bar">
-                <input type="text" id="searchGame" placeholder="Cari game..." onkeyup="searchGames()">
-                <select id="gameCategory" onchange="filterGames()">
-                    <option value="all">Semua Game</option>
-                    <option value="mobile">Mobile Legends</option>
-                    <option value="pc">PUBG</option>
-                    <option value="console">Free Fire</option>
-                </select>
-            </div>
-            <div class="product-grid" id="gameGrid"></div>
-        </div>
-    </section>
-
-    <!-- Akun Game Section -->
-    <section id="akun" class="products">
-        <div class="container">
-            <h2>Akun Game Ready</h2>
-            <div class="product-grid" id="akunGrid"></div>
-        </div>
-    </section>
-
-    <!-- E-Wallet Section -->
-    <section id="ewallet" class="products">
-        <div class="container">
-            <h2>Top Up E-Wallet</h2>
-            <div class="payment-grid" id="ewalletGrid"></div>
-        </div>
-    </section>
-
-    <!-- Bank Section -->
-    <section id="bank" class="products">
-        <div class="container">
-            <h2>Transfer Bank</h2>
-            <div class="payment-grid" id="bankGrid"></div>
-        </div>
-    </section>
-
-    <!-- Transaksi Section -->
-    <section id="transaksi" class="transaksi">
-        <div class="container">
-            <h2>Form Transaksi</h2>
-            <div class="transaksi-container">
-                <div class="transaksi-form">
-                    <form id="transaksiForm">
-                        <div class="form-group">
-                            <label>Pilih Layanan</label>
-                            <select id="layananType" onchange="updateForm()">
-                                <option value="topup">Top Up Game</option>
-                                <option value="akun">Beli Akun</option>
-                                <option value="ewallet">E-Wallet</option>
-                                <option value="bank">Transfer Bank</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Pilih Item</label>
-                            <select id="itemSelect" onchange="hitungTotal()"></select>
-                        </div>
-                        <div class="form-group" id="userIdField">
-                            <label>User ID / Email / Nomor</label>
-                            <input type="text" id="userId" placeholder="Masukkan User ID / Email / Nomor" onchange="hitungTotal()">
-                        </div>
-                        <div class="form-group" id="serverField">
-                            <label>Server</label>
-                            <input type="text" id="server" placeholder="Masukkan Server (opsional)">
-                        </div>
-                        <div class="form-group" id="jumlahField">
-                            <label>Jumlah</label>
-                            <input type="number" id="jumlah" value="1" min="1" onchange="hitungTotal()">
-                        </div>
-                        <div class="form-group">
-                            <label>Metode Pembayaran</label>
-                            <select id="paymentMethod" onchange="toggleQRIS()">
-                                <option value="ewallet">E-Wallet</option>
-                                <option value="bank">Transfer Bank</option>
-                                <option value="va">Virtual Account</option>
-                                <option value="qris">QRIS</option>
-                            </select>
-                        </div>
-                        
-                        <!-- QRIS Section -->
-                        <div id="qrisSection" style="display: none;">
-                            <div class="qris-container">
-                                <h3>Pembayaran via QRIS</h3>
-                                <div class="qris-image">
-                                    <img src="https://cdn.phototourl.com/uploads/2026-02-14-fa0f1899-4605-43bb-947b-27c76ee1a1e6.jpg" 
-                                         alt="QRIS Payment" 
-                                         id="qrisImage"
-                                         onclick="zoomQRIS()">
-                                    <p>Scan QR Code di atas untuk membayar</p>
-                                    <button type="button" class="btn-copy" onclick="copyQRIS()">
-                                        <i class="fas fa-copy"></i> Salin QR Code
-                                    </button>
-                                </div>
-                                
-                                <!-- Upload Bukti Pembayaran -->
-                                <div class="upload-bukti">
-                                    <h4>Upload Bukti Pembayaran</h4>
-                                    <div class="file-upload">
-                                        <input type="file" id="buktiPembayaran" accept="image/*" onchange="previewBukti(event)">
-                                        <label for="buktiPembayaran" class="btn-upload">
-                                            <i class="fas fa-cloud-upload-alt"></i> Pilih File
-                                        </label>
-                                        <span id="fileName">Tidak ada file dipilih</span>
-                                    </div>
-                                    <div id="previewBukti" class="preview-bukti"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="total-harga">
-                            <span>Total:</span>
-                            <span id="totalHarga">Rp 0</span>
-                        </div>
-                        <button type="button" class="btn-beli" onclick="prosesTransaksi()">Beli Sekarang</button>
-                    </form>
-                </div>
-                <div class="transaksi-info">
-                    <h3>Informasi Penting</h3>
-                    <ul>
-                        <li><i class="fas fa-check-circle"></i> Proses otomatis 24/7</li>
-                        <li><i class="fas fa-check-circle"></i> Garansi 100% aman</li>
-                        <li><i class="fas fa-check-circle"></i> Customer service 24 jam</li>
-                        <li><i class="fas fa-check-circle"></i> Harga termurah</li>
-                        <li><i class="fas fa-check-circle"></i> Pembayaran via QRIS tersedia</li>
-                    </ul>
+<!-- Di dalam form transaksi, tambahkan section upload bukti untuk semua metode pembayaran -->
+<section id="transaksi" class="transaksi">
+    <div class="container">
+        <h2>Form Transaksi</h2>
+        <div class="transaksi-container">
+            <div class="transaksi-form">
+                <form id="transaksiForm">
+                    <!-- ... form fields sebelumnya ... -->
                     
-                    <!-- Kontak Admin -->
-                    <div class="kontak-admin">
-                        <h4>Kirim Bukti Pembayaran ke Admin</h4>
-                        <div class="admin-contacts">
-                            <a href="https://wa.me/6281234567890" target="_blank" class="contact-btn whatsapp">
-                                <i class="fab fa-whatsapp"></i> WhatsApp
-                            </a>
-                            <a href="https://t.me/gamevaultadmin" target="_blank" class="contact-btn telegram">
-                                <i class="fab fa-telegram"></i> Telegram
-                            </a>
-                            <a href="mailto:admin@gamevault.com" class="contact-btn email">
-                                <i class="fas fa-envelope"></i> Email
-                            </a>
+                    <div class="form-group">
+                        <label>Metode Pembayaran</label>
+                        <select id="paymentMethod" onchange="toggleUploadBukti()">
+                            <option value="ewallet">E-Wallet</option>
+                            <option value="bank">Transfer Bank</option>
+                            <option value="va">Virtual Account</option>
+                            <option value="qris">QRIS</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Upload Bukti Pembayaran untuk SEMUA metode -->
+                    <div id="uploadBuktiSection" class="upload-bukti-section">
+                        <h3><i class="fas fa-cloud-upload-alt"></i> Upload Bukti Pembayaran</h3>
+                        <p class="upload-info">Upload screenshot/ foto bukti pembayaran Anda untuk konfirmasi ke admin</p>
+                        
+                        <div class="upload-area" id="uploadArea" onclick="document.getElementById('buktiFile').click()">
+                            <i class="fas fa-image"></i>
+                            <p>Klik untuk pilih file atau drag & drop</p>
+                            <span class="upload-hint">Format: JPG, PNG, JPEG (Max 5MB)</span>
+                        </div>
+                        
+                        <input type="file" id="buktiFile" accept="image/*" onchange="previewBukti(this)" style="display: none;">
+                        
+                        <div id="previewContainer" style="display: none;">
+                            <h4>Preview:</h4>
+                            <div class="preview-image">
+                                <img id="previewImg" src="#" alt="Preview">
+                                <button type="button" class="btn-remove" onclick="removeBukti()">
+                                    <i class="fas fa-times"></i> Hapus
+                                </button>
+                            </div>
+                            <div id="fileInfo" class="file-info"></div>
+                        </div>
+                        
+                        <div class="upload-note">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Bukti akan langsung dikirim ke admin untuk dikonfirmasi</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeLoginModal()">&times;</span>
-            <h2>Login ke GameVault</h2>
-            <form id="loginForm" onsubmit="event.preventDefault(); login()">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" required>
-                </div>
-                <button type="submit" class="btn-login-submit">Login</button>
-                <p class="modal-footer">Belum punya akun? <a href="#" onclick="switchToRegister()">Daftar</a></p>
-            </form>
-        </div>
-    </div>
-
-    <!-- Register Modal -->
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeRegisterModal()">&times;</span>
-            <h2>Daftar Akun Baru</h2>
-            <form id="registerForm" onsubmit="event.preventDefault(); register()">
-                <div class="form-group">
-                    <label>Nama Lengkap</label>
-                    <input type="text" id="registerName" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="registerEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="registerPassword" required>
-                </div>
-                <div class="form-group">
-                    <label>Konfirmasi Password</label>
-                    <input type="password" id="registerConfirmPassword" required>
-                </div>
-                <button type="submit" class="btn-register-submit">Daftar</button>
-                <p class="modal-footer">Sudah punya akun? <a href="#" onclick="switchToLogin()">Login</a></p>
-            </form>
-        </div>
-    </div>
-
-    <!-- Admin Panel Modal -->
-    <div id="adminModal" class="modal admin-modal">
-        <div class="modal-content large">
-            <span class="close" onclick="closeAdminModal()">&times;</span>
-            <h2>Panel Admin</h2>
-            <div class="admin-tabs">
-                <button class="tab-btn active" onclick="switchAdminTab('products')">Produk</button>
-                <button class="tab-btn" onclick="switchAdminTab('akun')">Akun Game</button>
-                <button class="tab-btn" onclick="switchAdminTab('users')">Users</button>
-                <button class="tab-btn" onclick="switchAdminTab('transactions')">Transaksi</button>
-                <button class="tab-btn" onclick="switchAdminTab('notifications')">Notifikasi <span id="adminNotifBadge" class="badge" style="display: none;">0</span></button>
+                    
+                    <div class="total-harga">
+                        <span>Total:</span>
+                        <span id="totalHarga">Rp 0</span>
+                    </div>
+                    
+                    <button type="button" class="btn-beli" onclick="prosesTransaksi()">
+                        <i class="fas fa-shopping-cart"></i> Beli Sekarang & Konfirmasi
+                    </button>
+                </form>
             </div>
             
-            <!-- Products Tab -->
-            <div id="adminProducts" class="admin-tab active">
-                <div class="admin-header">
-                    <h3>Daftar Produk Top Up</h3>
-                    <button class="btn-add" onclick="showAddProductForm()">Tambah Produk</button>
+            <div class="transaksi-info">
+                <h3>Informasi Penting</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Proses otomatis 24/7</li>
+                    <li><i class="fas fa-check-circle"></i> Garansi 100% aman</li>
+                    <li><i class="fas fa-check-circle"></i> Customer service 24 jam</li>
+                    <li><i class="fas fa-check-circle"></i> Wajib upload bukti pembayaran</li>
+                    <li><i class="fas fa-check-circle"></i> Konfirmasi maksimal 5 menit</li>
+                </ul>
+                
+                <!-- Status Upload -->
+                <div class="upload-status" id="uploadStatus" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Bukti siap diupload</span>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nama Game</th>
-                            <th>Item</th>
-                            <th>Harga</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productsTableBody"></tbody>
-                </table>
-            </div>
-
-            <!-- Akun Tab -->
-            <div id="adminAkun" class="admin-tab">
-                <div class="admin-header">
-                    <h3>Daftar Akun Game</h3>
-                    <button class="btn-add" onclick="showAddAkunForm()">Tambah Akun</button>
-                </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Game</th>
-                            <th>Deskripsi</th>
-                            <th>Harga</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="akunTableBody"></tbody>
-                </table>
-            </div>
-
-            <!-- Users Tab -->
-            <div id="adminUsers" class="admin-tab">
-                <h3>Daftar Users</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nama</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody"></tbody>
-                </table>
-            </div>
-
-            <!-- Transactions Tab -->
-            <div id="adminTransactions" class="admin-tab">
-                <h3>Daftar Transaksi</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID Transaksi</th>
-                            <th>User</th>
-                            <th>Item</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Bukti</th>
-                            <th>Tanggal</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsTableBody"></tbody>
-                </table>
-            </div>
-
-            <!-- Notifications Tab -->
-            <div id="adminNotifications" class="admin-tab">
-                <h3>Notifikasi Masuk</h3>
-                <div class="notifications-list" id="adminNotificationsList"></div>
             </div>
         </div>
     </div>
+</section>
 
-    <!-- Profile Modal -->
-    <div id="profileModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeProfileModal()">&times;</span>
-            <h2>Profile User</h2>
-            <form id="profileForm">
-                <div class="form-group">
-                    <label>Nama Lengkap</label>
-                    <input type="text" id="profileName" readonly>
+<!-- Admin Panel - Transactions Tab dengan preview foto -->
+<div id="adminTransactions" class="admin-tab">
+    <h3>Daftar Transaksi & Konfirmasi</h3>
+    
+    <!-- Filter Status -->
+    <div class="filter-status">
+        <button class="filter-btn active" onclick="filterTransactions('all')">Semua</button>
+        <button class="filter-btn" onclick="filterTransactions('menunggu_konfirmasi')">Menunggu Konfirmasi</button>
+        <button class="filter-btn" onclick="filterTransactions('pending')">Pending</button>
+        <button class="filter-btn" onclick="filterTransactions('success')">Sukses</button>
+        <button class="filter-btn" onclick="filterTransactions('failed')">Gagal</button>
+    </div>
+    
+    <!-- Search -->
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchTransaction" placeholder="Cari transaksi..." onkeyup="searchTransactions()">
+    </div>
+    
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID Transaksi</th>
+                <th>User</th>
+                <th>Item</th>
+                <th>Total</th>
+                <th>Metode</th>
+                <th>Bukti</th>
+                <th>Status</th>
+                <th>Tanggal</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="transactionsTableBody"></tbody>
+    </table>
+</div>
+
+<!-- Modal Preview Bukti untuk Admin -->
+<div id="previewBuktiModal" class="modal">
+    <div class="modal-content large">
+        <span class="close" onclick="closePreviewBuktiModal()">&times;</span>
+        <h2>Detail Bukti Pembayaran</h2>
+        
+        <div class="bukti-detail-container">
+            <div class="bukti-image-section">
+                <h3>Foto Bukti</h3>
+                <div class="bukti-image-frame">
+                    <img id="detailBuktiImage" src="#" alt="Bukti Pembayaran">
                 </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="profileEmail" readonly>
+                <div class="image-actions">
+                    <button class="btn-zoom" onclick="zoomImage()">
+                        <i class="fas fa-search-plus"></i> Zoom
+                    </button>
+                    <button class="btn-download" onclick="downloadImage()">
+                        <i class="fas fa-download"></i> Download
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <input type="text" id="profileRole" readonly>
+            </div>
+            
+            <div class="bukti-info-section">
+                <h3>Informasi Transaksi</h3>
+                <div id="detailTransaksi" class="detail-info"></div>
+                
+                <h3>Aksi Konfirmasi</h3>
+                <div class="konfirmasi-actions">
+                    <button class="btn-konfirmasi" id="btnKonfirmasi" onclick="konfirmasiPembayaran()">
+                        <i class="fas fa-check"></i> Konfirmasi
+                    </button>
+                    <button class="btn-tolak" id="btnTolak" onclick="tolakPembayaran()">
+                        <i class="fas fa-times"></i> Tolak
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label>Saldo</label>
-                    <input type="text" id="profileSaldo" readonly>
+                
+                <div class="catatan-input" id="catatanSection" style="display: none;">
+                    <label>Catatan (wajib jika ditolak):</label>
+                    <textarea id="catatanPenolakan" rows="3" placeholder="Alasan penolakan..."></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Member Sejak</label>
-                    <input type="text" id="profileMemberSince" readonly>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- History Modal -->
-    <div id="historyModal" class="modal">
-        <div class="modal-content large">
-            <span class="close" onclick="closeHistoryModal()">&times;</span>
-            <h2>Riwayat Transaksi</h2>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Tanggal</th>
-                        <th>Item</th>
-                        <th>Jumlah</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="historyTableBody"></tbody>
-            </table>
-        </div>
+<!-- Modal Zoom Image -->
+<div id="zoomImageModal" class="modal">
+    <div class="modal-content zoom-modal">
+        <span class="close" onclick="closeZoomModal()">&times;</span>
+        <img id="zoomImage" src="#" alt="Zoom">
     </div>
-
-    <!-- Notifications Modal -->
-    <div id="notificationsModal" class="modal">
-        <div class="modal-content large">
-            <span class="close" onclick="closeNotificationsModal()">&times;</span>
-            <h2>Notifikasi Saya</h2>
-            <div class="notifications-list" id="userNotificationsList"></div>
-        </div>
-    </div>
-
-    <!-- Add Product Modal -->
-    <div id="addProductModal" class="modal small">
-        <div class="modal-content">
-            <span class="close" onclick="closeAddProductModal()">&times;</span>
-            <h2>Tambah Produk</h2>
-            <form id="addProductForm" onsubmit="event.preventDefault(); saveProduct()">
-                <div class="form-group">
-                    <label>Nama Game</label>
-                    <input type="text" id="productGame" required>
-                </div>
-                <div class="form-group">
-                    <label>Item</label>
-                    <input type="text" id="productItem" required>
-                </div>
-                <div class="form-group">
-                    <label>Harga</label>
-                    <input type="number" id="productPrice" required>
-                </div>
-                <div class="form-group">
-                    <label>Kategori</label>
-                    <select id="productCategory">
-                        <option value="mobile">Mobile Legends</option>
-                        <option value="pc">PUBG</option>
-                        <option value="console">Free Fire</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-save">Simpan</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Akun Modal -->
-    <div id="addAkunModal" class="modal small">
-        <div class="modal-content">
-            <span class="close" onclick="closeAddAkunModal()">&times;</span>
-            <h2>Tambah Akun Game</h2>
-            <form id="addAkunForm" onsubmit="event.preventDefault(); saveAkun()">
-                <div class="form-group">
-                    <label>Game</label>
-                    <input type="text" id="akunGame" required>
-                </div>
-                <div class="form-group">
-                    <label>Deskripsi</label>
-                    <textarea id="akunDeskripsi" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Harga</label>
-                    <input type="number" id="akunPrice" required>
-                </div>
-                <div class="form-group">
-                    <label>Detail Akun</label>
-                    <textarea id="akunDetail" placeholder="Email:xxx Password:xxx" required></textarea>
-                </div>
-                <button type="submit" class="btn-save">Simpan</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Zoom QRIS Modal -->
-    <div id="qrisZoomModal" class="modal">
-        <div class="modal-content qris-zoom">
-            <span class="close" onclick="closeQRISZoom()">&times;</span>
-            <h2>Scan QRIS</h2>
-            <img src="https://cdn.phototourl.com/uploads/2026-02-14-fa0f1899-4605-43bb-947b-27c76ee1a1e6.jpg" 
-                 alt="QRIS Zoom">
-            <p class="qris-instruction">Scan menggunakan aplikasi e-wallet atau mobile banking</p>
-            <button class="btn-copy-qris" onclick="copyQRISLink()">
-                <i class="fas fa-copy"></i> Salin Link QRIS
-            </button>
-        </div>
-    </div>
-
-    <!-- Bukti Preview Modal -->
-    <div id="buktiPreviewModal" class="modal">
-        <div class="modal-content small">
-            <span class="close" onclick="closeBuktiPreviewModal()">&times;</span>
-            <h2>Preview Bukti Pembayaran</h2>
-            <div id="buktiPreviewContent"></div>
-            <div class="bukti-actions" id="buktiActions"></div>
-        </div>
-    </div>
-
-    <!-- JavaScript External -->
-    <script src="script.js"></script>
-</body>
-</html>
+</div>
