@@ -11,41 +11,81 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="https://cdn.phototourl.com/uploads/2026-02-15-5f873800-26a4-43be-a12c-3100fc8daf52.png">
+    
+    <!-- Firebase SDK untuk Notifikasi -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                    .then(function(registration) {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('Service Worker registration failed:', err);
+                    });
+            });
+        }
+    </script>
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <i class="fas fa-gamepad"></i>
-                <span>GameVault</span>
+                <span class="logo-text">GameVault</span>
             </div>
-            <div class="nav-menu" id="navMenu">
-                <ul>
-                    <li><a href="#home" class="active">Beranda</a></li>
-                    <li><a href="#topup">Top Up</a></li>
-                    <li><a href="#akun">Beli Akun</a></li>
-                    <li><a href="#ewallet">E-Wallet</a></li>
-                    <li><a href="#bank">Bank</a></li>
-                    <li><a href="#transaksi">Transaksi</a></li>
-                </ul>
-            </div>
-            <div class="nav-auth" id="navAuth">
-                <button class="btn-login" onclick="showLoginModal()">Login</button>
-                <button class="btn-register" onclick="showRegisterModal()">Daftar</button>
-            </div>
-            <div class="nav-user" id="navUser" style="display: none;">
-                <span id="userName"></span>
-                <div class="user-dropdown">
-                    <i class="fas fa-chevron-down"></i>
-                    <div class="dropdown-content">
-                        <a href="#" onclick="showProfile()"><i class="fas fa-user"></i> Profile</a>
-                        <a href="#" onclick="showHistory()"><i class="fas fa-history"></i> Riwayat</a>
-                        <a href="#" onclick="showNotifications()"><i class="fas fa-bell"></i> Notifikasi <span id="notifBadge" class="badge" style="display: none;">0</span></a>
-                        <a href="#" id="adminPanel" style="display: none;" onclick="showAdminPanel()"><i class="fas fa-cog"></i> Admin Panel</a>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            
+            <div class="nav-right">
+                <div class="nav-menu" id="navMenu">
+                    <ul>
+                        <li><a href="#home" class="active">Beranda</a></li>
+                        <li><a href="#topup">Top Up Game</a></li>
+                        <li><a href="#akun">Beli Akun</a></li>
+                        <li><a href="#reseller">Top Up Saldo Reseller</a></li>
+                        <li><a href="#isi-saldo">Isi Saldo</a></li>
+                        <li><a href="#ewallet">E-Wallet</a></li>
+                        <li><a href="#transaksi">Transaksi</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Tombol Izin Notifikasi -->
+                <button class="btn-notification" id="notifPermissionBtn" onclick="requestNotificationPermission()" title="Aktifkan Notifikasi">
+                    <i class="fas fa-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                
+                <div class="nav-auth" id="navAuth">
+                    <button class="btn-login" onclick="showLoginModal()">Login</button>
+                    <button class="btn-register" onclick="showRegisterModal()">Daftar</button>
+                </div>
+                
+                <div class="nav-user" id="navUser" style="display: none;">
+                    <span id="userName"></span>
+                    <div class="user-dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="#" onclick="showProfile()"><i class="fas fa-user"></i> Profile</a>
+                            <a href="#" onclick="showSaldoAkun()"><i class="fas fa-wallet"></i> Saldo Akun <span id="saldoAkunBadge" class="badge">Rp 0</span></a>
+                            <a href="#" onclick="showSaldoReseller()"><i class="fas fa-coins"></i> Saldo Reseller <span id="saldoResellerBadge" class="badge">Rp 0</span></a>
+                            <a href="#" onclick="showAkunSaya()"><i class="fas fa-gamepad"></i> Akun Saya</a>
+                            <a href="#" onclick="showHistory()"><i class="fas fa-history"></i> Riwayat</a>
+                            <a href="#" onclick="showNotifications()"><i class="fas fa-bell"></i> Notifikasi <span id="notifBadge" class="badge" style="display: none;">0</span></a>
+                            <a href="#" onclick="openNotificationSettings()"><i class="fas fa-cog"></i> Pengaturan Notifikasi</a>
+                            <a href="#" id="adminPanel" style="display: none;" onclick="showAdminPanel()"><i class="fas fa-cog"></i> Admin Panel</a>
+                            <a href="#" id="resellerPanel" style="display: none;" onclick="showResellerPanel()"><i class="fas fa-store"></i> Panel Reseller</a>
+                            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -55,15 +95,15 @@
         <div class="hero-container">
             <div class="hero-content">
                 <h1>Top Up Game & Beli Akun <span>Termurah</span></h1>
-                <p>Dapatkan berbagai layanan top up game, e-wallet, dan akun game dengan harga terbaik dan proses cepat</p>
+                <p>Dapatkan berbagai layanan top up game, akun game, isi saldo, dan top up saldo reseller dengan harga terbaik dan proses cepat</p>
                 <div class="hero-stats">
                     <div class="stat-item">
                         <h3>10K+</h3>
                         <p>Pelanggan</p>
                     </div>
                     <div class="stat-item">
-                        <h3>50+</h3>
-                        <p>Game</p>
+                        <h3>500+</h3>
+                        <p>Reseller</p>
                     </div>
                     <div class="stat-item">
                         <h3>100%</h3>
@@ -94,21 +134,21 @@
                         <i class="fas fa-users"></i>
                     </div>
                     <h3>Beli Akun</h3>
-                    <p>Akun game siap pakai</p>
+                    <p>Akun game siap pakai + screenshot</p>
                 </div>
-                <div class="kategori-card" onclick="showEwallet()">
+                <div class="kategori-card" onclick="showIsiSaldo()">
                     <div class="kategori-icon">
                         <i class="fas fa-wallet"></i>
                     </div>
-                    <h3>E-Wallet</h3>
-                    <p>Top up DANA, OVO, Gopay</p>
+                    <h3>Isi Saldo Akun</h3>
+                    <p>Isi saldo untuk transaksi lebih cepat</p>
                 </div>
-                <div class="kategori-card" onclick="showBank()">
+                <div class="kategori-card" onclick="showReseller()">
                     <div class="kategori-icon">
-                        <i class="fas fa-university"></i>
+                        <i class="fas fa-store"></i>
                     </div>
-                    <h3>Transfer Bank</h3>
-                    <p>Semua bank tersedia</p>
+                    <h3>Top Up Saldo Reseller</h3>
+                    <p>Jadi reseller & dapatkan harga spesial</p>
                 </div>
             </div>
         </div>
@@ -123,8 +163,10 @@
                 <select id="gameCategory" onchange="filterGames()">
                     <option value="all">Semua Game</option>
                     <option value="mobile">Mobile Legends</option>
-                    <option value="pc">PUBG</option>
-                    <option value="console">Free Fire</option>
+                    <option value="pubg">PUBG</option>
+                    <option value="ff">Free Fire</option>
+                    <option value="valorant">Valorant</option>
+                    <option value="genshin">Genshin Impact</option>
                 </select>
             </div>
             <div class="product-grid" id="gameGrid"></div>
@@ -135,7 +177,112 @@
     <section id="akun" class="products">
         <div class="container">
             <h2>Akun Game Ready</h2>
-            <div class="product-grid" id="akunGrid"></div>
+            <div class="filter-bar">
+                <input type="text" id="searchAkun" placeholder="Cari akun..." onkeyup="searchAkun()">
+                <select id="akunCategory" onchange="filterAkun()">
+                    <option value="all">Semua Game</option>
+                    <option value="mobile">Mobile Legends</option>
+                    <option value="pubg">PUBG</option>
+                    <option value="ff">Free Fire</option>
+                    <option value="valorant">Valorant</option>
+                </select>
+            </div>
+            <div class="akun-grid" id="akunGrid"></div>
+        </div>
+    </section>
+
+    <!-- Isi Saldo Section -->
+    <section id="isi-saldo" class="products">
+        <div class="container">
+            <h2>Isi Saldo Akun</h2>
+            <p class="section-desc">Isi saldo akun Anda untuk transaksi lebih cepat tanpa perlu upload bukti setiap kali beli</p>
+            
+            <div class="isi-saldo-container">
+                <div class="saldo-info">
+                    <div class="info-card">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Informasi Saldo</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Minimal isi saldo Rp 50.000</li>
+                            <li><i class="fas fa-check"></i> Saldo bisa digunakan untuk semua transaksi</li>
+                            <li><i class="fas fa-check"></i> Proses lebih cepat tanpa upload bukti</li>
+                            <li><i class="fas fa-check"></i> Bonus saldo untuk deposit besar</li>
+                            <li><i class="fas fa-check"></i> Saldo tidak bisa ditarik kembali</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-card">
+                        <i class="fas fa-gift"></i>
+                        <h3>Bonus Deposit</h3>
+                        <ul>
+                            <li><i class="fas fa-tag"></i> Deposit 50-100rb : Bonus 5%</li>
+                            <li><i class="fas fa-tag"></i> Deposit 100-500rb : Bonus 7%</li>
+                            <li><i class="fas fa-tag"></i> Deposit 500rb-1jt : Bonus 10%</li>
+                            <li><i class="fas fa-tag"></i> Deposit >1jt : Bonus 15% + Voucher</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="saldo-packages">
+                    <h3>Pilih Nominal Deposit</h3>
+                    <div class="package-grid" id="saldoPackages"></div>
+                </div>
+                
+                <div class="custom-deposit">
+                    <h3>Atau Masukkan Nominal Sendiri</h3>
+                    <div class="custom-input">
+                        <input type="number" id="customSaldo" placeholder="Masukkan nominal (min Rp 50.000)" min="50000">
+                        <button class="btn-custom" onclick="hitungBonusSaldo()">Hitung Bonus</button>
+                    </div>
+                    <div id="bonusInfo" class="bonus-info" style="display: none;">
+                        <p>Bonus yang didapat: <span id="bonusAmount">Rp 0</span></p>
+                        <p>Total saldo masuk: <span id="totalSaldo">Rp 0</span></p>
+                    </div>
+                    <button class="btn-deposit" onclick="prosesDepositSaldo()">
+                        <i class="fas fa-arrow-right"></i> Lanjutkan Deposit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reseller Section -->
+    <section id="reseller" class="products">
+        <div class="container">
+            <h2>Top Up Saldo Reseller</h2>
+            <p class="section-desc">Dapatkan harga khusus untuk reseller. Minimal deposit Rp 100.000</p>
+            
+            <div class="reseller-container">
+                <div class="reseller-info">
+                    <div class="info-card">
+                        <i class="fas fa-crown"></i>
+                        <h3>Keuntungan Reseller</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Harga lebih murah 10-20%</li>
+                            <li><i class="fas fa-check"></i> Stok selalu tersedia</li>
+                            <li><i class="fas fa-check"></i> Proses otomatis 24 jam</li>
+                            <li><i class="fas fa-check"></i> Bonus saldo untuk deposit besar</li>
+                            <li><i class="fas fa-check"></i> Panel khusus reseller</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="info-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Komisi Reseller</h3>
+                        <ul>
+                            <li><i class="fas fa-tag"></i> Deposit 100-500rb : Komisi 5%</li>
+                            <li><i class="fas fa-tag"></i> Deposit 500rb-1jt : Komisi 7%</li>
+                            <li><i class="fas fa-tag"></i> Deposit 1jt-5jt : Komisi 10%</li>
+                            <li><i class="fas fa-tag"></i> Deposit >5jt : Komisi 15% + Bonus</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="reseller-packages">
+                    <h3>Pilihan Paket Deposit</h3>
+                    <div class="package-grid" id="resellerPackages"></div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -144,14 +291,6 @@
         <div class="container">
             <h2>Top Up E-Wallet</h2>
             <div class="payment-grid" id="ewalletGrid"></div>
-        </div>
-    </section>
-
-    <!-- Bank Section -->
-    <section id="bank" class="products">
-        <div class="container">
-            <h2>Transfer Bank</h2>
-            <div class="payment-grid" id="bankGrid"></div>
         </div>
     </section>
 
@@ -167,37 +306,56 @@
                             <select id="layananType" onchange="updateForm()">
                                 <option value="topup">Top Up Game</option>
                                 <option value="akun">Beli Akun</option>
+                                <option value="isi_saldo">Isi Saldo Akun</option>
+                                <option value="reseller">Top Up Saldo Reseller</option>
                                 <option value="ewallet">E-Wallet</option>
-                                <option value="bank">Transfer Bank</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Pilih Item</label>
-                            <select id="itemSelect" onchange="hitungTotal()"></select>
+                        
+                        <!-- Untuk Top Up Game, Isi Saldo, & Reseller -->
+                        <div id="produkSection">
+                            <div class="form-group">
+                                <label>Pilih Produk / Nominal</label>
+                                <select id="itemSelect" onchange="hitungTotal()"></select>
+                            </div>
                         </div>
+                        
+                        <!-- Untuk Beli Akun (tampilkan detail akun) -->
+                        <div id="akunDetailSection" style="display: none;">
+                            <div class="akun-preview">
+                                <h4>Preview Akun</h4>
+                                <div class="akun-images" id="akunImages"></div>
+                                <div class="akun-specs" id="akunSpecs"></div>
+                            </div>
+                        </div>
+                        
                         <div class="form-group" id="userIdField">
-                            <label>User ID Akun / USN Akun (khusus game lain)</label>
-                            <input type="text" id="userId" placeholder="Masukkan User ID / Email / Nomor" onchange="hitungTotal()">
+                            <label>User ID / Email / Nomor HP</label>
+                            <input type="text" id="userId" placeholder="Masukkan User ID / Email / Nomor HP" onchange="hitungTotal()">
                         </div>
+                        
                         <div class="form-group" id="serverField">
-                            <label>Server Akun</label>
+                            <label>Server</label>
                             <input type="text" id="server" placeholder="Masukkan Server (opsional)">
                         </div>
+                        
                         <div class="form-group" id="jumlahField">
                             <label>Jumlah</label>
                             <input type="number" id="jumlah" value="1" min="1" onchange="hitungTotal()">
                         </div>
+                        
                         <div class="form-group">
                             <label>Metode Pembayaran</label>
-                            <select id="paymentMethod">
+                            <select id="paymentMethod" onchange="toggleQRIS()">
                                 <option value="ewallet">E-Wallet</option>
-                                <option value="bank">Transfer Bank</option>
                                 <option value="va">Virtual Account</option>
                                 <option value="qris">QRIS</option>
+                                <option value="saldo_akun">Saldo Akun</option>
+                                <option value="saldo_reseller">Saldo Reseller</option>
                             </select>
                         </div>
                         
-                        <!-- Upload Bukti Pembayaran untuk SEMUA metode -->
+                        <!-- Upload Bukti Pembayaran (untuk metode selain saldo) -->
                         <div id="uploadBuktiSection" class="upload-bukti-section">
                             <h3><i class="fas fa-cloud-upload-alt"></i> Upload Bukti Pembayaran</h3>
                             <p class="upload-info">Upload screenshot/ foto bukti pembayaran Anda untuk konfirmasi ke admin</p>
@@ -221,7 +379,7 @@
                                 <div id="fileInfo" class="file-info"></div>
                             </div>
                             
-                            <!-- QRIS Section (tetap ada) -->
+                            <!-- QRIS Section -->
                             <div id="qrisSection" style="display: none;">
                                 <div class="qris-container">
                                     <h4>Scan QRIS</h4>
@@ -246,8 +404,18 @@
                             <span id="totalHarga">Rp 0</span>
                         </div>
                         
+                        <div class="sisa-saldo" id="sisaSaldoAkun" style="display: none;">
+                            <span>Sisa Saldo Akun:</span>
+                            <span id="sisaSaldoAkunValue">Rp 0</span>
+                        </div>
+                        
+                        <div class="sisa-saldo" id="sisaSaldoReseller" style="display: none;">
+                            <span>Sisa Saldo Reseller:</span>
+                            <span id="sisaSaldoResellerValue">Rp 0</span>
+                        </div>
+                        
                         <button type="button" class="btn-beli" onclick="prosesTransaksi()">
-                            <i class="fas fa-shopping-cart"></i> Beli Sekarang & Konfirmasi
+                            <i class="fas fa-shopping-cart"></i> Proses Transaksi
                         </button>
                     </form>
                 </div>
@@ -260,20 +428,19 @@
                         <li><i class="fas fa-check-circle"></i> Customer service 24 jam</li>
                         <li><i class="fas fa-check-circle"></i> Wajib upload bukti pembayaran</li>
                         <li><i class="fas fa-check-circle"></i> Konfirmasi maksimal 5 menit</li>
+                        <li><i class="fas fa-check-circle"></i> Data akun dikirim via notifikasi</li>
+                        <li><i class="fas fa-check-circle"></i> Saldo langsung masuk setelah konfirmasi</li>
                     </ul>
                     
                     <!-- Kontak Admin -->
                     <div class="kontak-admin">
                         <h4>Hubungi Admin</h4>
                         <div class="admin-contacts">
-                            <a href="https://wa.me/6282210756431" target="_blank" class="contact-btn whatsapp">
+                            <a href="https://wa.me/6281234567890" target="_blank" class="contact-btn whatsapp">
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
-                            <a href="https://t.me/gamevaultitem" target="_blank" class="contact-btn telegram">
+                            <a href="https://t.me/gamevaultadmin" target="_blank" class="contact-btn telegram">
                                 <i class="fab fa-telegram"></i> Telegram
-                            </a>
-                            <a href="mailto:admingamevault@gmail.com" class="contact-btn email">
-                                <i class="fas fa-envelope"></i> Email
                             </a>
                         </div>
                     </div>
@@ -330,6 +497,13 @@
                     <label>Konfirmasi Password</label>
                     <input type="password" id="registerConfirmPassword" required>
                 </div>
+                <div class="form-group">
+                    <label>Daftar sebagai Reseller?</label>
+                    <select id="registerAsReseller">
+                        <option value="no">Tidak (User Biasa)</option>
+                        <option value="yes">Ya (Reseller)</option>
+                    </select>
+                </div>
                 <button type="submit" class="btn-register-submit">Daftar</button>
                 <p class="modal-footer">Sudah punya akun? <a href="#" onclick="switchToLogin()">Login</a></p>
             </form>
@@ -342,11 +516,14 @@
             <span class="close" onclick="closeAdminModal()">&times;</span>
             <h2>Panel Admin</h2>
             <div class="admin-tabs">
-                <button class="tab-btn active" onclick="switchAdminTab('products')">Produk</button>
+                <button class="tab-btn active" onclick="switchAdminTab('products')">Produk Top Up</button>
                 <button class="tab-btn" onclick="switchAdminTab('akun')">Akun Game</button>
+                <button class="tab-btn" onclick="switchAdminTab('saldo')">Deposit Saldo</button>
+                <button class="tab-btn" onclick="switchAdminTab('reseller')">Paket Reseller</button>
                 <button class="tab-btn" onclick="switchAdminTab('users')">Users</button>
                 <button class="tab-btn" onclick="switchAdminTab('transactions')">Transaksi</button>
                 <button class="tab-btn" onclick="switchAdminTab('notifications')">Notifikasi <span id="adminNotifBadge" class="badge" style="display: none;">0</span></button>
+                <button class="tab-btn" onclick="switchAdminTab('broadcast')">Broadcast</button>
             </div>
             
             <!-- Products Tab -->
@@ -359,9 +536,12 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Gambar</th>
                             <th>Nama Game</th>
                             <th>Item</th>
                             <th>Harga</th>
+                            <th>Harga Reseller</th>
+                            <th>Kategori</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -379,6 +559,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Gambar</th>
                             <th>Game</th>
                             <th>Deskripsi</th>
                             <th>Harga</th>
@@ -387,6 +568,81 @@
                         </tr>
                     </thead>
                     <tbody id="akunTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Saldo Deposit Tab -->
+            <div id="adminSaldo" class="admin-tab">
+                <div class="admin-header">
+                    <h3>Daftar Paket Deposit Saldo</h3>
+                    <button class="btn-add" onclick="showAddSaldoPackageForm()">Tambah Paket</button>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama Paket</th>
+                            <th>Nominal</th>
+                            <th>Bonus</th>
+                            <th>Harga</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="saldoPackagesTableBody"></tbody>
+                </table>
+                
+                <h3 style="margin-top: 30px;">Riwayat Deposit Saldo</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Nominal</th>
+                            <th>Bonus</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositHistoryTable"></tbody>
+                </table>
+            </div>
+
+            <!-- Reseller Tab -->
+            <div id="adminReseller" class="admin-tab">
+                <div class="admin-header">
+                    <h3>Paket Deposit Reseller</h3>
+                    <button class="btn-add" onclick="showAddResellerPackageForm()">Tambah Paket</button>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama Paket</th>
+                            <th>Nominal</th>
+                            <th>Bonus</th>
+                            <th>Harga Jual</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resellerPackagesTableBody"></tbody>
+                </table>
+                
+                <h3 style="margin-top: 30px;">Daftar Reseller</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Saldo Reseller</th>
+                            <th>Total Deposit</th>
+                            <th>Komisi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resellerListTableBody"></tbody>
                 </table>
             </div>
 
@@ -400,7 +656,10 @@
                             <th>Nama</th>
                             <th>Email</th>
                             <th>Role</th>
+                            <th>Saldo Akun</th>
+                            <th>Saldo Reseller</th>
                             <th>Status</th>
+                            <th>FCM Token</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -412,16 +671,13 @@
             <div id="adminTransactions" class="admin-tab">
                 <h3>Daftar Transaksi & Konfirmasi</h3>
                 
-                <!-- Filter Status -->
                 <div class="filter-status">
                     <button class="filter-btn active" onclick="filterTransactions('all')">Semua</button>
                     <button class="filter-btn" onclick="filterTransactions('menunggu_konfirmasi')">Menunggu Konfirmasi</button>
-                    <button class="filter-btn" onclick="filterTransactions('pending')">Pending</button>
                     <button class="filter-btn" onclick="filterTransactions('success')">Sukses</button>
                     <button class="filter-btn" onclick="filterTransactions('failed')">Gagal</button>
                 </div>
                 
-                <!-- Search -->
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" id="searchTransaction" placeholder="Cari transaksi..." onkeyup="searchTransactions()">
@@ -450,6 +706,123 @@
                 <h3>Notifikasi Masuk</h3>
                 <div class="notifications-list" id="adminNotificationsList"></div>
             </div>
+            
+            <!-- Broadcast Tab -->
+            <div id="adminBroadcast" class="admin-tab">
+                <h3>Kirim Broadcast ke Semua User</h3>
+                <div class="broadcast-form">
+                    <div class="form-group">
+                        <label>Judul Notifikasi</label>
+                        <input type="text" id="broadcastTitle" placeholder="Contoh: Promo Spesial!" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label>Pesan</label>
+                        <textarea id="broadcastMessage" rows="4" placeholder="Tulis pesan Anda..." maxlength="200"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Link (opsional)</label>
+                        <input type="text" id="broadcastLink" placeholder="https://website-lengkap-2xoa.vercel.app">
+                    </div>
+                    <div class="form-group">
+                        <label>Target</label>
+                        <select id="broadcastTarget">
+                            <option value="all">Semua User</option>
+                            <option value="reseller">Reseller</option>
+                            <option value="admin">Admin Saja</option>
+                        </select>
+                    </div>
+                    <button class="btn-broadcast" onclick="sendBroadcast()">
+                        <i class="fas fa-paper-plane"></i> Kirim Broadcast
+                    </button>
+                </div>
+                
+                <h3 style="margin-top: 30px;">Riwayat Broadcast</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Waktu</th>
+                            <th>Judul</th>
+                            <th>Pesan</th>
+                            <th>Target</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="broadcastHistory"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reseller Panel Modal -->
+    <div id="resellerPanelModal" class="modal">
+        <div class="modal-content large">
+            <span class="close" onclick="closeResellerPanel()">&times;</span>
+            <h2><i class="fas fa-store"></i> Panel Reseller</h2>
+            
+            <div class="reseller-stats">
+                <div class="stat-card">
+                    <i class="fas fa-wallet"></i>
+                    <div>
+                        <h3>Saldo Reseller</h3>
+                        <p id="resellerSaldo">Rp 0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <div>
+                        <h3>Total Transaksi</h3>
+                        <p id="resellerTotalTrans">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-percent"></i>
+                    <div>
+                        <h3>Komisi</h3>
+                        <p id="resellerKomisi">0%</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="reseller-tabs">
+                <button class="tab-btn active" onclick="switchResellerTab('beli')">Beli Produk</button>
+                <button class="tab-btn" onclick="switchResellerTab('history')">Riwayat Pembelian</button>
+                <button class="tab-btn" onclick="switchResellerTab('topup')">Top Up Saldo</button>
+            </div>
+            
+            <div id="resellerBeliTab" class="reseller-tab active">
+                <h3>Beli Produk dengan Saldo Reseller</h3>
+                <div class="filter-bar">
+                    <input type="text" id="searchResellerProduct" placeholder="Cari produk...">
+                    <select id="resellerProductCategory">
+                        <option value="all">Semua Kategori</option>
+                        <option value="topup">Top Up Game</option>
+                        <option value="akun">Akun Game</option>
+                    </select>
+                </div>
+                <div class="product-grid" id="resellerProductGrid"></div>
+            </div>
+            
+            <div id="resellerHistoryTab" class="reseller-tab">
+                <h3>Riwayat Pembelian</h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tanggal</th>
+                            <th>Produk</th>
+                            <th>Harga</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resellerHistoryTable"></tbody>
+                </table>
+            </div>
+            
+            <div id="resellerTopupTab" class="reseller-tab">
+                <h3>Top Up Saldo Reseller</h3>
+                <p class="info-text">Pilih paket deposit untuk menambah saldo reseller Anda</p>
+                <div class="package-grid" id="resellerTopupPackages"></div>
+            </div>
         </div>
     </div>
 
@@ -458,28 +831,63 @@
         <div class="modal-content">
             <span class="close" onclick="closeProfileModal()">&times;</span>
             <h2>Profile User</h2>
-            <form id="profileForm">
-                <div class="form-group">
-                    <label>Nama Lengkap</label>
-                    <input type="text" id="profileName" readonly>
+            <div class="profile-info">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
                 </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="profileEmail" readonly>
+                <div class="profile-details">
+                    <p><strong>Nama:</strong> <span id="profileName"></span></p>
+                    <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+                    <p><strong>Role:</strong> <span id="profileRole"></span></p>
+                    <p><strong>Saldo Akun:</strong> <span id="profileSaldoAkun"></span></p>
+                    <p><strong>Saldo Reseller:</strong> <span id="profileSaldoReseller"></span></p>
+                    <p><strong>Member Sejak:</strong> <span id="profileMemberSince"></span></p>
+                    <p><strong>Status Notifikasi:</strong> <span id="profileNotifStatus" class="notif-status"></span></p>
                 </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <input type="text" id="profileRole" readonly>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saldo Akun Modal -->
+    <div id="saldoAkunModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSaldoAkunModal()">&times;</span>
+            <h2><i class="fas fa-wallet"></i> Saldo Akun</h2>
+            <div class="saldo-akun-info">
+                <div class="current-saldo">
+                    <h3>Saldo Saat Ini</h3>
+                    <p class="saldo-nominal" id="currentSaldoAkun">Rp 0</p>
                 </div>
-                <div class="form-group">
-                    <label>Saldo</label>
-                    <input type="text" id="profileSaldo" readonly>
+                
+                <div class="saldo-history">
+                    <h3>Riwayat Deposit</h3>
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Nominal</th>
+                                <th>Bonus</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="saldoHistoryTable"></tbody>
+                    </table>
                 </div>
-                <div class="form-group">
-                    <label>Member Sejak</label>
-                    <input type="text" id="profileMemberSince" readonly>
-                </div>
-            </form>
+                
+                <button class="btn-deposit" onclick="showIsiSaldo()">
+                    <i class="fas fa-plus-circle"></i> Isi Saldo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Akun Saya Modal -->
+    <div id="akunSayaModal" class="modal">
+        <div class="modal-content large">
+            <span class="close" onclick="closeAkunSayaModal()">&times;</span>
+            <h2><i class="fas fa-gamepad"></i> Akun Game Saya</h2>
+            <div class="akun-saya-grid" id="akunSayaGrid"></div>
         </div>
     </div>
 
@@ -496,8 +904,8 @@
                         <th>Item</th>
                         <th>Jumlah</th>
                         <th>Total</th>
+                        <th>Metode</th>
                         <th>Status</th>
-                        <th>Bukti</th>
                     </tr>
                 </thead>
                 <tbody id="historyTableBody"></tbody>
@@ -514,11 +922,81 @@
         </div>
     </div>
 
+    <!-- Notification Settings Modal -->
+    <div id="notificationSettingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeNotificationSettings()">&times;</span>
+            <h2><i class="fas fa-bell"></i> Pengaturan Notifikasi</h2>
+            
+            <div class="notification-settings">
+                <div class="setting-group">
+                    <h3>Status Notifikasi</h3>
+                    <div class="status-indicator" id="notifStatusIndicator">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Mengecek status...</span>
+                    </div>
+                    <button class="btn-activate" id="activateNotifBtn" onclick="requestNotificationPermission()" style="display: none;">
+                        <i class="fas fa-bell"></i> Aktifkan Notifikasi
+                    </button>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>Notifikasi untuk:</h3>
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="notifNewTransaction" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Transaksi Baru</span>
+                    </div>
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="notifPaymentConfirm" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Konfirmasi Pembayaran</span>
+                    </div>
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="notifAkunDelivery" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Pengiriman Data Akun</span>
+                    </div>
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="notifPromo" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span>Promo & Diskon</span>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>Test Notifikasi</h3>
+                    <button class="btn-test" onclick="testNotification()">
+                        <i class="fas fa-paper-plane"></i> Kirim Notifikasi Test
+                    </button>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>Cara Mendapatkan Notifikasi di HP</h3>
+                    <ol class="instruction-list">
+                        <li>Buka website di browser HP (Chrome/ Firefox)</li>
+                        <li>Klik tombol notifikasi <i class="fas fa-bell"></i> di pojok kanan</li>
+                        <li>Pilih "Izinkan" saat muncul popup</li>
+                        <li>Notifikasi akan muncul di layar HP meskipun website ditutup</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Product Modal -->
     <div id="addProductModal" class="modal small">
         <div class="modal-content">
             <span class="close" onclick="closeAddProductModal()">&times;</span>
-            <h2>Tambah Produk</h2>
+            <h2>Tambah Produk Top Up</h2>
             <form id="addProductForm" onsubmit="event.preventDefault(); saveProduct()">
                 <div class="form-group">
                     <label>Nama Game</label>
@@ -529,16 +1007,26 @@
                     <input type="text" id="productItem" required>
                 </div>
                 <div class="form-group">
-                    <label>Harga</label>
+                    <label>Harga Normal</label>
                     <input type="number" id="productPrice" required>
+                </div>
+                <div class="form-group">
+                    <label>Harga Reseller</label>
+                    <input type="number" id="productResellerPrice" required>
                 </div>
                 <div class="form-group">
                     <label>Kategori</label>
                     <select id="productCategory">
                         <option value="mobile">Mobile Legends</option>
-                        <option value="pc">PUBG</option>
-                        <option value="console">Free Fire</option>
+                        <option value="pubg">PUBG</option>
+                        <option value="ff">Free Fire</option>
+                        <option value="valorant">Valorant</option>
+                        <option value="genshin">Genshin Impact</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>URL Gambar</label>
+                    <input type="url" id="productImage" placeholder="https://...">
                 </div>
                 <button type="submit" class="btn-save">Simpan</button>
             </form>
@@ -564,8 +1052,86 @@
                     <input type="number" id="akunPrice" required>
                 </div>
                 <div class="form-group">
-                    <label>Detail Akun</label>
-                    <textarea id="akunDetail" placeholder="Email:xxx Password:xxx" required></textarea>
+                    <label>Harga Reseller</label>
+                    <input type="number" id="akunResellerPrice" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Akun</label>
+                    <input type="email" id="akunEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password Akun</label>
+                    <input type="text" id="akunPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Nickname</label>
+                    <input type="text" id="akunNickname" required>
+                </div>
+                <div class="form-group">
+                    <label>Level / Rank</label>
+                    <input type="text" id="akunLevel" required>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Skin</label>
+                    <input type="number" id="akunSkinCount" required>
+                </div>
+                <div class="form-group">
+                    <label>URL Gambar (pisahkan dengan koma)</label>
+                    <textarea id="akunImages" placeholder="https://..., https://..."></textarea>
+                </div>
+                <button type="submit" class="btn-save">Simpan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Saldo Package Modal -->
+    <div id="addSaldoPackageModal" class="modal small">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddSaldoPackageModal()">&times;</span>
+            <h2>Tambah Paket Deposit Saldo</h2>
+            <form id="addSaldoPackageForm" onsubmit="event.preventDefault(); saveSaldoPackage()">
+                <div class="form-group">
+                    <label>Nama Paket</label>
+                    <input type="text" id="saldoPackageName" required>
+                </div>
+                <div class="form-group">
+                    <label>Nominal</label>
+                    <input type="number" id="saldoPackageNominal" required>
+                </div>
+                <div class="form-group">
+                    <label>Bonus (%)</label>
+                    <input type="number" id="saldoPackageBonus" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Harga</label>
+                    <input type="number" id="saldoPackagePrice" required>
+                </div>
+                <button type="submit" class="btn-save">Simpan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Reseller Package Modal -->
+    <div id="addResellerPackageModal" class="modal small">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddResellerPackageModal()">&times;</span>
+            <h2>Tambah Paket Deposit Reseller</h2>
+            <form id="addResellerPackageForm" onsubmit="event.preventDefault(); saveResellerPackage()">
+                <div class="form-group">
+                    <label>Nama Paket</label>
+                    <input type="text" id="resellerPackageName" required>
+                </div>
+                <div class="form-group">
+                    <label>Nominal</label>
+                    <input type="number" id="resellerPackageNominal" required>
+                </div>
+                <div class="form-group">
+                    <label>Bonus (%)</label>
+                    <input type="number" id="resellerPackageBonus" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Harga Jual</label>
+                    <input type="number" id="resellerPackagePrice" required>
                 </div>
                 <button type="submit" class="btn-save">Simpan</button>
             </form>
@@ -614,6 +1180,22 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Detail Akun Modal (untuk buyer melihat data akun) -->
+    <div id="detailAkunModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDetailAkunModal()">&times;</span>
+            <h2><i class="fas fa-gamepad"></i> Data Akun Game</h2>
+            <div id="detailAkunContent" class="detail-akun-content"></div>
+            <div class="warning-note">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Segera ganti password setelah login untuk keamanan akun Anda!</p>
+            </div>
+            <button class="btn-copy" onclick="copyDataAkun()">
+                <i class="fas fa-copy"></i> Salin Data Akun
+            </button>
         </div>
     </div>
 
